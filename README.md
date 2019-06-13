@@ -17,7 +17,7 @@ git clone https://github.com/cohesity/cohesity-nagios-plugin.git
 
 
 ## How to Use:
-
+# Step 1
 Initializing the Client:
 ```
 username = 'Username'
