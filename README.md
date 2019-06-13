@@ -32,7 +32,7 @@ https://pypi.org/project/nagiosplugin/
 * Note: use sudo install for all dependencies
 
 ## Step 3
-follow steps to add python files to nagios core :
+follow steps to add python files to nagios core plugin :
 https://www.digitalocean.com/community/tutorials/how-to-create-nagios-plugins-with-python-on-ubuntu-12-10
 
 Note: 
