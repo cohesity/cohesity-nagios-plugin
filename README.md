@@ -23,16 +23,16 @@ on an ubuntu server follow these steps to dowload nagios core:
 https://support.nagios.com/kb/article/nagios-core-installing-nagios-core-from-source-96.html#Ubuntu
 
 ## Step 2 
-install Cohesity SDK 
+install Cohesity SDK : 
 https://github.com/cohesity/app-sdk-python
 
-install nagios plugin library 
+install nagios plugin library : 
 https://pypi.org/project/nagiosplugin/
 
 * Note: use sudo install for all dependencies
 
 ## Step 3
-follow steps to add python files to nagios core 
+follow steps to add python files to nagios core :
 https://www.digitalocean.com/community/tutorials/how-to-create-nagios-plugins-with-python-on-ubuntu-12-10
 
 Note: 
