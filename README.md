@@ -19,7 +19,7 @@ git clone https://github.com/cohesity/cohesity-nagios-plugin.git
 # How to Use:
 
 ## Step 1
-on an ubuntu server follow these steps to dowload nagios core: 
+on an ubuntu server follow these steps to download nagios core: 
 https://support.nagios.com/kb/article/nagios-core-installing-nagios-core-from-source-96.html#Ubuntu
 
 ## Step 2 
