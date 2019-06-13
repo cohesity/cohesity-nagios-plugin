@@ -52,7 +52,7 @@ Note:
                                               domain=DOMAIN)
                                               
   ```
- ## Step 4 
+ ## Step 4 :tada:
  
  Once this is done the nagios plugin should be running and giving you updates on cluster information.
  
