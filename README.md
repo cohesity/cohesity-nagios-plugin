@@ -66,9 +66,9 @@ Follow steps to add python files to nagios core plugin :
  
  ``` define command{ command_name    example.py command_line    $USER1$/example.py } ```
  
- 5. Verify configuration ```/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg ```
+ 6. Verify configuration ```/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg ```
  
- 6. restart service ```service nagios restart```
+ 7. restart service ```service nagios restart```
 
 Note: 
   * In terminal to run the scripts ensure to use the following commands
