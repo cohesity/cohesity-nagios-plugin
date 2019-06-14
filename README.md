@@ -58,13 +58,20 @@ Follow steps to add python files to nagios core plugin :
  4. Add NRPE configuration 
   ```sudo nano  /usr/local/nagios/etc/nagios.cfg ```
   change the following to the file name 
-  ```command[example]=/usr/lib/nagios/plugins/example.sh```
+  ```
+  command[example]=/usr/lib/nagios/plugins/example.sh
+  ```
   
  5. Configure commands 
  ```sudo nano /usr/local/nagios/etc/objects/commands.cfg```
  change the following to the file name 
  
- ``` define command{ command_name    example.py command_line    $USER1$/example.py } ```
+ ``` 
+ define command{
+ command_name    example.py 
+ command_line    $USER1$/example.py 
+ }
+ ```
  
  6. Verify configuration ```/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg ```
  
