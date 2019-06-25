@@ -50,8 +50,7 @@ class Cohesityclusterstorage(nagiosplugin.Resource):
         :return: list(lst): of available and used
         """
         try:
-            alerts = self.cohesity_client.cluster
-            alerts_list = alerts.get_cluster(fetch_stats=True)
+            alerts_list = self.cohesity_client.cluster.get_cluster(fetch_stats=True)
             used = alerts_list.stats.usage_perf_stats.total_physical_usage_bytes
             total = alerts_list.stats.usage_perf_stats.physical_capacity_bytes
         except BaseException:

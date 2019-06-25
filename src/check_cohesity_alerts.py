@@ -62,8 +62,7 @@ class Cohesityalerts(nagiosplugin.Resource):
             end_date = int((end - epoch).total_seconds()) * 1000000
             start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
             start_date = int((start - epoch).total_seconds()) * 1000000
-            alerts = self.cohesity_client.alerts
-            alerts_list = alerts.get_alerts(
+            alerts_list = self.cohesity_client.alerts.get_alerts(
                 start_date_usecs=start_date, end_date_usecs=end_date,
                 max_alerts=1000, alert_state_list=AlertStateListEnum.KOPEN)
         except BaseException:

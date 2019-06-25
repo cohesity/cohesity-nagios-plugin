@@ -49,8 +49,7 @@ class Cohesityobjects(nagiosplugin.Resource):
         :return: list(lst): of protected and not protected
         """
         try:
-            objects = self.cohesity_client.protection_sources
-            object_list = objects.list_protection_sources_registration_info(include_entity_permission_info=True)
+            object_list = self.cohesity_client.protection_sources.list_protection_sources_registration_info(include_entity_permission_info=True)
             protected = 0
             notprotected = 0
             stats = object_list.stats_by_env 

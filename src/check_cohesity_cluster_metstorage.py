@@ -51,8 +51,7 @@ class Cohesityclusterstorage(nagiosplugin.Resource):
         :return: list(lst): of available and used
         """
         try:
-            alerts = self.cohesity_client.cluster
-            alerts_list = alerts.get_cluster()
+            alerts_list = self.cohesity_client.cluster.get_cluster()
             used = alerts_list.used_metadata_space_pct
         except BaseException:
             _log.debug("Cohesity Cluster is not active")

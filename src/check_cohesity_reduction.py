@@ -45,8 +45,7 @@ class Cohesityclusterreduction(nagiosplugin.Resource):
         :return: list(lst): ratio
         """
         try:
-            cluster = self.cohesity_client.cluster
-            cluster_stats = cluster.get_cluster(fetch_stats=True)
+            cluster_stats = self.cohesity_client.cluster.get_cluster(fetch_stats=True)
             reduction = cluster_stats.stats.data_reduction_ratio
         except BaseException:
             _log.debug("Cohesity Cluster is not active")

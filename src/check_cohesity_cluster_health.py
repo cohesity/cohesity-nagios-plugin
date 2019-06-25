@@ -53,8 +53,7 @@ class Cohesityclusterhealth(nagiosplugin.Resource):
         :return: alert_list1(lst): all the alerts that are critical or warning for cluster
         """
         try:
-            alerts = self.cohesity_client.alerts
-            alerts_list = alerts.get_alerts(
+            alerts_list = self.cohesity_client.alerts.get_alerts(
                 alert_category_list=AlertCategoryListEnum.KCLUSTERHEALTH,
                 max_alerts=100,
                 alert_state_list=AlertStateListEnum.KOPEN)

@@ -52,8 +52,7 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
         :return: number of passed and failed protection runs
         """
         try:
-            protection_runs = self.cohesity_client.protection_runs
-            protection_runs_list = protection_runs.get_protection_runs()
+            protection_runs_list = self.cohesity_client.protection_runs.get_protection_runs()
         except BaseException:
             _log.debug("Cohesity Cluster is not active")
 
