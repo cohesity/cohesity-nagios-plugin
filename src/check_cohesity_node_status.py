@@ -5,9 +5,7 @@
 
 """
 check_cohesity_node_status.py
-This script lets the user know if any nodes are in a critical status,
-and returns a critical alert if any node has a status other than
-NONCRITICAL.
+This script lets the user know if any nodes are not active on cluster,
 Requires the following non-core Python modules:
 - nagiosplugin
 - cohesity/app-sdk-python
@@ -19,6 +17,9 @@ from cohesity_management_sdk.cohesity_client import CohesityClient
 import argparse
 import logging
 import nagiosplugin
+import requests
+import json
+
 
 DOMAIN = 'LOCAL'
 
@@ -48,42 +49,77 @@ class Cohesitynodestatus(nagiosplugin.Resource):
 
     def get_node_status(self):
         """
-        Method to get the cohesity status if critical
-        :return: alert_list1(lst): all the alerts that are critical for nodes
+        Method to get the cohesity node status
+        :return: node_list(lst): number of total and active nodes
         """
-        counter = 0
+        global APIROOT
+        APIROOT = 'https://' + str(self.ip) + '/irisservices/api/v1'
+        creds = json.dumps({
+            "domain": str(DOMAIN),
+            "password": str(self.password),
+            "username": str(self.username)
+        })
+        global HEADER
+        HEADER = {
+            'accept': 'application/json',
+            'content-type': 'application/json'}
+        url = APIROOT + '/public/accessTokens'
         try:
-            nodes = self.cohesity_client.nodes
-            nodes_list = nodes.get_nodes()
-            for num in nodes_list:
-                counter = counter + 1
-            nodes_cluster = self.cohesity_client.cluster
-            cnodes = nodes_cluster.get_cluster()
-            number_cluster = cnodes.node_count
-
+            response = requests.post(
+                url, data=creds, headers=HEADER, verify=False)
+            if response != '':
+                if response.status_code == 201:
+                    accessToken = response.json()['accessToken']
+                    tokenType = response.json()['tokenType']
+                    HEADER = {'accept': 'application/json',
+                              'content-type': 'application/json',
+                              'authorization': tokenType + ' ' + accessToken}
+                    global AUTHENTICATED
+                    AUTHENTICATED = True
+            response = requests.get(
+                APIROOT +
+                '/nexus/cluster/status',
+                headers=HEADER,
+                verify=False)
+            response = response.json()
+            node_stats = response["nodeStatus"]
+            num_nodes = 0
+            activity = []
+            for nodes in node_stats:
+                num_nodes = num_nodes + 1
+                activity.append(0)
+                for service in nodes["serviceStatus"]:
+                    if len(service["processIds"]) > 1:
+                        activity[num_nodes - 1] = 1
+                        break
+            return activity
         except BaseException:
             _log.debug("Cohesity Cluster is not active")
-        return [counter, number_cluster]
 
     def probe(self):
         """
         Method to get the status
         :return: metric(str): nagios status.
         """
-        countt_node = self.get_node_status()
-        difference = countt_node[0] - countt_node[1]
-        if countt_node[0] == countt_node[1]:
-            _log.info('All ' +
-                      str(countt_node[0]) +
-                      ' nodes are active on the cluster')
+        activity = self.get_node_status()
+        num_nodes = len(activity)
+        active = activity.count(1)
+        bad_c = num_nodes - active
+
+        if num_nodes == active:
+            _log.info('All ' + str(num_nodes) + ' nodes active')
         else:
-            _log.debug(str(difference) + ' nodes are not active on cluster')
+            _log.debug(
+                str(active) +
+                ' of ' +
+                str(num_nodes) +
+                ' active on cluster')
 
         metric = nagiosplugin.Metric(
-            'Unhealthy nodes',
-            difference,
+            'Unactive node alerts',
+            bad_c,
             min=0,
-            context='difference')
+            context='bad_c')
         return metric
 
 
@@ -101,13 +137,13 @@ def parse_args():
         '--warning',
         metavar='RANGE',
         default='~:0',
-        help='return warning if occupancy is outside RANGE. Value is expressed in number of unhealthy nodes')
+        help='return warning if occupancy is outside RANGE.')
     argp.add_argument(
         '-c',
         '--critical',
         metavar='RANGE',
         default='~:0',
-        help='return critical if occupancy is outside RANGE. Value is expressed in number of unhealthy nodes')
+        help='return critical if occupancy is outside RANGE.')
     argp.add_argument('-v', '--verbose', action='count', default=0,
                       help='increase output verbosity (use up to 3 times)')
     argp.add_argument('-t', '--timeout', default=30,
@@ -124,11 +160,7 @@ def main():
             args.ip,
             args.user,
             args.password))
-    check.add(
-        nagiosplugin.ScalarContext(
-            'difference',
-            args.warning,
-            args.critical))
+    check.add(nagiosplugin.ScalarContext('bad_c', args.warning, args.critical))
     check.main(args.verbose, args.timeout)
 
 
