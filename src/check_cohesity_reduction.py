@@ -4,14 +4,11 @@
 
 """
 check storage reduction of cohesity cluster
-
 Info notifications 
-
 Requires the following non-core Python modules:
 - nagiosplugin
 - cohesity sdk
 user excecution rights to all
-
 """
 from cohesity_management_sdk.cohesity_client import CohesityClient
 import argparse
@@ -33,9 +30,9 @@ class Cohesityclusterreduction(nagiosplugin.Resource):
         self.ip = ip
         self.user = user
         self.password = password
-        self.cohesity_client = CohesityClient(cluster_vip='10.2.148.30',
-                                              username='admin',
-                                              password='admin',
+        self.cohesity_client = CohesityClient(cluster_vip=ip,
+                                              username=user,
+                                              password=password,
                                               domain=DOMAIN)
 
     @property

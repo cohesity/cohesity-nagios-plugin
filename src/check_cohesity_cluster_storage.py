@@ -35,7 +35,6 @@ class Cohesityclusterstorage(nagiosplugin.Resource):
         self.ip = ip
         self.user = user
         self.password = password
-        self.password = password
         self.cohesity_client = CohesityClient(cluster_vip=ip,
                                               username=user,
                                               password=password,

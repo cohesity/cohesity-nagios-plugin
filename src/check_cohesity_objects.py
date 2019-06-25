@@ -49,14 +49,18 @@ class Cohesityobjects(nagiosplugin.Resource):
         :return: list(lst): of protected and not protected
         """
         try:
-            objects = self.cohesity_client.dashboard
-            object_list = objects.get_dashboard()
-            protected = object_list.dashboard.protected_objects.protected_count
-            notprtoect = object_list.dashboard.protected_objects.unprotected_count
+            objects = self.cohesity_client.protection_sources
+            object_list = objects.list_protection_sources_registration_info(include_entity_permission_info=True)
+            protected = 0
+            notprotected = 0
+            stats = object_list.stats_by_env 
+            for r in stats: 
+                protected = r.protected_count + protected 
+                notprotected = r.unprotected_count + notprotected
+
         except BaseException:
             _log.debug("Cohesity Cluster is not active")
-
-        return [protected, notprtoect]
+        return [protected, notprotected]
 
     def probe(self):
         """
