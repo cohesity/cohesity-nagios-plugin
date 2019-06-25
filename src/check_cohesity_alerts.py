@@ -73,7 +73,6 @@ class Cohesityalerts(nagiosplugin.Resource):
         for r in alerts_list:
             if r.severity == "kCritical":
                 alerts_list1.append("critical")
-        for r in alerts_list:
             if r.severity == "kWarning":
                 alerts_list2.append("warning")
         cc = len(alerts_list1)
