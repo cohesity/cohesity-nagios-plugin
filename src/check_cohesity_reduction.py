@@ -5,7 +5,7 @@
 """
 check storage reduction of cohesity cluster
 
-and returns a warning if the usage is not greater than 0
+Info notifications 
 
 Requires the following non-core Python modules:
 - nagiosplugin
@@ -33,9 +33,9 @@ class Cohesityclusterreduction(nagiosplugin.Resource):
         self.ip = ip
         self.user = user
         self.password = password
-        self.cohesity_client = CohesityClient(cluster_vip=ip,
-                                              username=user,
-                                              password=password,
+        self.cohesity_client = CohesityClient(cluster_vip='10.2.148.30',
+                                              username='admin',
+                                              password='admin',
                                               domain=DOMAIN)
 
     @property
@@ -59,19 +59,16 @@ class Cohesityclusterreduction(nagiosplugin.Resource):
     def probe(self):
         """
         Method to get the status
-        :return: metric(str): nagios status.
         """
         ratio = int(self.get_cluster_reduction())
 
-        _log.info('Cluster reduction ratio is ' + str(ratio))
+        _log.info('Cluster reduction ratio OK status ' + str(ratio))
         metric = nagiosplugin.Metric(
-            'Cluster reduction ratio',
+            'Reduction ratio',
             ratio,
-            min=0,
-            max=100,
-            context='cluster_ratio')
+            max=200,
+            context='ratio')
         return metric
-
 
 def parse_args():
     argp = argparse.ArgumentParser()
@@ -82,14 +79,14 @@ def parse_args():
     argp.add_argument('-i', '--ip', help="Cohesity hostname or ip address")
     argp.add_argument('-u', '--user', help="Cohesity username")
     argp.add_argument('-p', '--password', help="Cohesity password")
+    argp.add_argument('-v', '--verbose', action='count', default=0,
+                      help='increase output verbosity (use up to 3 times)')
     argp.add_argument(
         '-w',
         '--warning',
         metavar='RANGE',
-        default=':',
-        help='return warning if occupancy is outside RANGE')
-    argp.add_argument('-v', '--verbose', action='count', default=0,
-                      help='increase output verbosity (use up to 3 times)')
+        default='@0:50',
+        help='return warning if occupancy is inside RANGE.')    
     argp.add_argument('-t', '--timeout', default=30,
                       help='abort execution after TIMEOUT seconds')
     return argp.parse_args()
@@ -101,7 +98,7 @@ def main():
     check = nagiosplugin.Check(
         Cohesityclusterreduction(
             args.ip, args.user, args.password))
-    check.add(nagiosplugin.ScalarContext('cluster_ratio', args.warning))
+    check.add(nagiosplugin.ScalarContext('ratio',  args.warning))
     check.main(args.verbose, args.timeout)
 
 
