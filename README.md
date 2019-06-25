@@ -106,4 +106,3 @@ Note:
 * Check node status 
 * Check percent of objects protected 
 * Check metadata storage 
-* Check recoveries in the past 30 days 
