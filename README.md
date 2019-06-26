@@ -19,8 +19,8 @@ git clone https://github.com/cohesity/cohesity-nagios-plugin.git
 # How to Use:
 
 ## Step 1
-On an ubuntu server follow these steps to download nagios core:  
-https://support.nagios.com/kb/article/nagios-core-installing-nagios-core-from-source-96.html#Ubuntu
+On a Linux server follow these steps to download nagios core:  
+https://support.nagios.com/kb/article/nagios-core-installing-nagios-core-from-source-96.html
 
 ## Step 2 
 Install Cohesity SDK : 
@@ -63,7 +63,7 @@ Follow steps to add python files to nagios core plugin :
   ```
   
  5. Configure commands 
- ```sudo nano /usr/local/nagios/etc/objects/commands.cfg```
+ ```sudo vim /usr/local/nagios/etc/objects/commands.cfg```
  change the following to the file name 
  
  ``` 
