@@ -55,9 +55,9 @@ class Cohesityclusterreduction(nagiosplugin.Resource):
         """
         ratio = int(self.get_cluster_reduction())
 
-        _log.info('Cluster reduction ratio OK status ' + str(ratio))
+        _log.info("Cluster reduction ratio OK status {0}".format(ratio))
         metric = nagiosplugin.Metric(
-            'Reduction ratio',
+            "Reduction ratio",
             ratio,
             min=50,
             context='ratio')
