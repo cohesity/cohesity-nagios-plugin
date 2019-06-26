@@ -26,12 +26,12 @@ class Cohesityclusterstorage(nagiosplugin.Resource):
         :param ip(str): ip address.
         :param user(str): username.
         :param password(str): password.
+        :param domain(str): domain.
         """
         self.cohesity_client = CohesityClient(cluster_vip=ip,
                                               username=user,
                                               password=password,
                                               domain=domain)
-
 
     @property
     def name(self):
