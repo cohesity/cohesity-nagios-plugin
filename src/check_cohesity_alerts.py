@@ -63,9 +63,9 @@ class Cohesityalerts(nagiosplugin.Resource):
                 alerts_list1.append("critical")
             if r.severity == "kWarning":
                 alerts_list2.append("warning")
-        cc = len(alerts_list1)
-        ww = len(alerts_list2)
-        return [cc, ww]
+        critical = len(alerts_list1)
+        warning = len(alerts_list2)
+        return [critical, warning]
 
     def probe(self):
         """
