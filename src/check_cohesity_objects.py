@@ -34,7 +34,7 @@ class Cohesityobjects(nagiosplugin.Resource):
 
     @property
     def name(self):
-        return 'cohesity_CLUSTER_OBJECTS_PROTECTED'
+        return 'COHESITY_CLUSTER_OBJECTS_PROTECTED'
 
     def get_object(self):
         """
