@@ -34,7 +34,7 @@ class Cohesityclusterreduction(nagiosplugin.Resource):
 
     @property
     def name(self):
-        return 'cohesity_CLUSTER_DATA_REDUCTION'
+        return 'COHESITY_CLUSTER_DATA_REDUCTION'
 
     def get_cluster_reduction(self):
         """
