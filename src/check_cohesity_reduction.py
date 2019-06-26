@@ -10,10 +10,11 @@ Requires the following non-core Python modules:
 - cohesity sdk
 user excecution rights to all
 """
-from cohesity_management_sdk.cohesity_client import CohesityClient
 import argparse
 import logging
 import nagiosplugin
+
+from cohesity_management_sdk.cohesity_client import CohesityClient
 
 DOMAIN = 'LOCAL'
 _log = logging.getLogger('nagiosplugin')
