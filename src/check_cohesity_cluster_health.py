@@ -64,20 +64,19 @@ class Cohesityclusterhealth(nagiosplugin.Resource):
         Method to get the status
         :return: metric(str): nagios status.
         """
-        critical_c = self.get_cluster_status()
+        not_healthy_lst = self.get_cluster_status()
 
-        critical = len(critical_c)
-        bad_c = critical
-        if bad_c == 0:
+        non_healthy_num = len(critical_c)
+        if non_healthy_num == 0:
             _log.info('Cluster' + ' is in an OK status')
         else:
-            _log.debug(str(bad_c) + ' returned an unhealthy status')
+            _log.debug(str(non_healthy_num) + ' returned an unhealthy status')
 
         metric = nagiosplugin.Metric(
             'Unhealthy cluster alerts',
-            bad_c,
+            non_healthy_num,
             min=0,
-            context='bad_c')
+            context='non_healthy_num')
         return metric
 
 
@@ -118,7 +117,7 @@ def main():
             args.ip,
             args.user,
             args.password))
-    check.add(nagiosplugin.ScalarContext('bad_c', args.warning, args.critical))
+    check.add(nagiosplugin.ScalarContext('non_healthy_num', args.warning, args.critical))
     check.main(args.verbose, args.timeout)
 
 
