@@ -20,20 +20,18 @@ _log = logging.getLogger('nagiosplugin')
 
 
 class Cohesityclusterreduction(nagiosplugin.Resource):
-    def __init__(self, ip, user, password):
+    def __init__(self, ip, user, password, domain):
         """
         Method to initialize
         :param ip(str): ip address.
         :param user(str): username.
         :param password(str): password.
+        :param domain(str): domain.
         """
-        self.ip = ip
-        self.user = user
-        self.password = password
         self.cohesity_client = CohesityClient(cluster_vip=ip,
                                               username=user,
                                               password=password,
-                                              domain=DOMAIN)
+                                              domain=domain)
 
     @property
     def name(self):
