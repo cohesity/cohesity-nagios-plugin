@@ -36,7 +36,7 @@ class Cohesitynodestatus(nagiosplugin.Resource):
 
     @property
     def name(self):
-        return 'cohesity_NODE_STATUS'
+        return 'COHESITY_NODE_STATUS'
 
     def get_node_status(self):
         """
