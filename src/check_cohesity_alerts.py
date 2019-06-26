@@ -37,7 +37,7 @@ class Cohesityalerts(nagiosplugin.Resource):
 
     @property
     def name(self):
-        return 'cohesity_ALERT_STATUS'
+        return 'COHESITY_ALERT_STATUS'
 
     def get_alerts(self):
         """
