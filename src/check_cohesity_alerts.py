@@ -1,23 +1,14 @@
 #!/usr/bin/env python
-
 # Copyright 2019 Cohesity Inc.
-
-
-"""
-check_cohesity_alerts.py
-This script looks at alerts and if there are warnings or severe
-status' raises an alert
-else if just info everything is OK
-for the last day, max 1000 alerts
-
-Requires the following non-core Python modules:
-- nagiosplugin
-- cohesity/app-sdk-python
-
-Change the execution rights of the program to allow
-the execution to 'all' (usually chmod 0755).
-Created by Christina Mudarth
-"""
+# Author : Christina Mudarth <your_email_id>
+# Usage : 
+# python check_cohesity_alerts.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
+# This script looks at alerts and raises an alert for Alert status of type: warnings or severe status'
+# else if just info everything is OK for the last day, max 1000 alerts
+# Requires the following non-core Python modules:
+# - nagiosplugin
+# - cohesity_management_sdk
+# Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
 import argparse
 import datetime
 import logging
