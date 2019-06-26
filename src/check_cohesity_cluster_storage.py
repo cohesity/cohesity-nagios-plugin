@@ -14,10 +14,11 @@ Requires the following non-core Python modules:
 user excecution rights to all
 
 """
-from cohesity_management_sdk.cohesity_client import CohesityClient
 import argparse
 import logging
 import nagiosplugin
+
+from cohesity_management_sdk.cohesity_client import CohesityClient
 
 DOMAIN = 'LOCAL'
 
