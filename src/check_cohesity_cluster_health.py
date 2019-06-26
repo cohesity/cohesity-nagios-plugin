@@ -38,7 +38,7 @@ class Cohesityclusterhealth(nagiosplugin.Resource):
 
     @property
     def name(self):
-        return 'cohesity_CLUSTER_HEALTH'
+        return 'COHESITY_CLUSTER_HEALTH'
 
     def get_cluster_status(self):
         """
