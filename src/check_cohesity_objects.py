@@ -1,19 +1,23 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
-# Usage : 
-# python check_cohesity_objects.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
+# Usage :
+# python check_cohesity_objects.py -i 'IP ADDRESS' -u 'USERNAME'
+# -p 'PASSWORD' -d 'DOMAIN'
 # check sources protected
 # and returns a warning the protected sources exceeds 90%
 # Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
-# Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
+# - cohesity_app_sdk
+# Change the execution rights of the program to allow the
+# execution to 'all' (usually chmod 0755).
 import argparse
 import logging
 import nagiosplugin
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
+from cohesity_app_sdk.exceptions.api_exception import APIException
 
 _log = logging.getLogger('nagiosplugin')
 
@@ -42,16 +46,18 @@ class Cohesityobjects(nagiosplugin.Resource):
         :return: list(lst): of protected and not protected
         """
         try:
-            object_list = self.cohesity_client.protection_sources.list_protection_sources_registration_info(include_entity_permission_info=True)
-            protected = 0
-            notprotected = 0
-            stats = object_list.stats_by_env 
-            for r in stats: 
-                protected = r.protected_count + protected 
-                notprotected = r.unprotected_count + notprotected
+            object_list = self.cohesity_client.protection_sources.\
+                list_protection_sources_registration_info(
+                    include_entity_permission_info=True)
+        except APIException:
+            _log.debug("APIException raised")
+        protected = 0
+        notprotected = 0
+        stats = object_list.stats_by_env
+        for r in stats:
+            protected = r.protected_count + protected
+            notprotected = r.unprotected_count + notprotected
 
-        except BaseException:
-            _log.debug("Cohesity Cluster is not active")
         return [protected, notprotected]
 
     def probe(self):
@@ -81,11 +87,12 @@ def parse_args():
     argp = argparse.ArgumentParser()
     argp.add_argument(
         '-s',
-        '--cohesity_client',
+        '--Cohesity_client',
         help="Cohesity ip address, username, and password")
     argp.add_argument('-i', '--ip', help="Cohesity hostname or ip address")
     argp.add_argument('-u', '--user', help="Cohesity username")
     argp.add_argument('-p', '--password', help="Cohesity password")
+    argp.add_argument('-d', '--domain', help="Cohesity domain")
     argp.add_argument('-v', '--verbose', action='count', default=0,
                       help='increase output verbosity (use up to 3 times)')
     argp.add_argument(
@@ -93,7 +100,8 @@ def parse_args():
         '--warning',
         metavar='RANGE',
         default=':90',
-        help='return warning if occupancy is outside RANGE. Value is expressed in percentage')
+        help="return warning if occupancy is outside RANGE." +
+        " Value is expressed in percentage")
     argp.add_argument('-t', '--timeout', default=30,
                       help='abort execution after TIMEOUT seconds')
     return argp.parse_args()
@@ -106,7 +114,8 @@ def main():
         Cohesityobjects(
             args.ip,
             args.user,
-            args.password))
+            args.password,
+            args.domain))
     check.add(nagiosplugin.ScalarContext('protected', args.warning))
     check.main(args.verbose, args.timeout)
 

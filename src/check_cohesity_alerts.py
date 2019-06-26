@@ -1,21 +1,27 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
-# Usage : 
-# python check_cohesity_alerts.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
-# This script looks at alerts and raises an alert for Alert status of type: warnings or severe status'
+# Usage :
+# python check_cohesity_alerts.py -i 'IP ADDRESS' -u 'USERNAME'
+# -p 'PASSWORD' -d 'DOMAIN'
+# This script looks at alerts and raises an alert for
+# Alert status of type: warnings or severe status'
 # else if just info everything is OK for the last day, max 1000 alerts
 # Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
-# Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
+# - cohesity_app_sdk
+# Change the execution rights of the program to allow
+# the execution to 'all' (usually chmod 0755).
 import argparse
 import datetime
 import logging
 import nagiosplugin
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
-from cohesity_management_sdk.models.alert_state_list_enum import AlertStateListEnum
+from cohesity_management_sdk.models.alert_state_list_enum import (
+                                                AlertStateListEnum)
+from cohesity_app_sdk.exceptions.api_exception import APIException
 
 
 _log = logging.getLogger('nagiosplugin')
@@ -44,17 +50,17 @@ class Cohesityalerts(nagiosplugin.Resource):
         Method to get the cohesity status if critical
         :return: alert_list(lst): all the alerts that are critical or warnings
         """
+        epoch = datetime.datetime.utcfromtimestamp(0)
+        end = datetime.datetime.utcnow()
+        end_date = int((end - epoch).total_seconds()) * 1000000
+        start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
+        start_date = int((start - epoch).total_seconds()) * 1000000
         try:
-            epoch = datetime.datetime.utcfromtimestamp(0)
-            end = datetime.datetime.utcnow()
-            end_date = int((end - epoch).total_seconds()) * 1000000
-            start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-            start_date = int((start - epoch).total_seconds()) * 1000000
             alerts_list = self.cohesity_client.alerts.get_alerts(
                 start_date_usecs=start_date, end_date_usecs=end_date,
                 max_alerts=1000, alert_state_list=AlertStateListEnum.KOPEN)
-        except BaseException:
-            _log.debug("Cohesity Cluster is not active")
+        except APIException:
+            _log.debug("APIException raised")
 
         alerts_list1 = []
         alerts_list2 = []
@@ -79,10 +85,13 @@ class Cohesityalerts(nagiosplugin.Resource):
 
         if critical > 0 or warning > 0:
             _log.debug(
-                "There are {0} alerts in critical status and {1} alerts in warning status in the past day".format(critical, warning))
+                "There are {0} alerts in critical status and {1} " +
+                "alerts in warning status in the past" +
+                "day".format(critical, warning))
         else:
             _log.info(
-                "All alerts are in info status or no alerts exist in the past day")
+                "All alerts are in info status or no alerts" +
+                " exist in the past day")
 
         metric = nagiosplugin.Metric(
             "Alerts with issues",
@@ -96,11 +105,12 @@ def parse_args():
     argp = argparse.ArgumentParser()
     argp.add_argument(
         '-s',
-        '--cohesity_client',
-        help="cohesity ip address, username, and password")
-    argp.add_argument('-i', '--ip', help="cohesity ip address")
-    argp.add_argument('-u', '--user', help="cohesity username")
-    argp.add_argument('-p', '--password', help="cohesity password")
+        '--Cohesity_client',
+        help="Cohesity ip address, username, and password")
+    argp.add_argument('-i', '--ip', help="Cohesity ip address")
+    argp.add_argument('-u', '--user', help="Cohesity username")
+    argp.add_argument('-p', '--password', help="Cohesity password")
+    argp.add_argument('-d', '--domain', help="Cohesity domain")
     argp.add_argument(
         '-w',
         '--warning',
@@ -128,7 +138,8 @@ def main():
         Cohesityalerts(
             args.ip,
             args.user,
-            args.password))
+            args.password,
+            args.domain))
     check.add(
         nagiosplugin.ScalarContext(
             'warning/critical',

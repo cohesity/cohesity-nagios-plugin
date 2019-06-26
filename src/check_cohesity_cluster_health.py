@@ -1,21 +1,28 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
-# Usage : 
-# python check_cohesity_cluster_health.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
-# This script lets the user know if the cluster is healthy or not, if there are no warnings or critical status'
+# Usage :
+# python check_cohesity_cluster_health.py -i 'IP ADDRESS' -u
+# 'USERNAME' -p 'PASSWORD' -d 'DOMAIN'
+# This script lets the user know if the cluster is healthy or not,
+# if there are no warnings or critical status'
 # an OK status is returned
 # Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
-# Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
+# - cohesity_app_sdk
+# Change the execution rights of the program to allow the execution
+# to 'all' (usually chmod 0755).
 import argparse
 import logging
 import nagiosplugin
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
-from cohesity_management_sdk.models.alert_state_list_enum import AlertStateListEnum
-from cohesity_management_sdk.models.alert_category_list_enum import AlertCategoryListEnum
+from cohesity_management_sdk.models.alert_state_list_enum import (
+    AlertStateListEnum)
+from cohesity_management_sdk.models.alert_category_list_enum import (
+    AlertCategoryListEnum)
+from cohesity_app_sdk.exceptions.api_exception import APIException
 
 
 _log = logging.getLogger('nagiosplugin')
@@ -35,7 +42,6 @@ class Cohesityclusterhealth(nagiosplugin.Resource):
                                               password=password,
                                               domain=domain)
 
-
     @property
     def name(self):
         return 'COHESITY_CLUSTER_HEALTH'
@@ -43,15 +49,16 @@ class Cohesityclusterhealth(nagiosplugin.Resource):
     def get_cluster_status(self):
         """
         Method to get the cohesity status if critical
-        :return: alert_list1(lst): all the alerts that are critical or warning for cluster
+        :return: alert_list1(lst): all the alerts that are critical
+        or warning for cluster
         """
         try:
             alerts_list = self.cohesity_client.alerts.get_alerts(
                 alert_category_list=AlertCategoryListEnum.KCLUSTERHEALTH,
                 max_alerts=100,
                 alert_state_list=AlertStateListEnum.KOPEN)
-        except BaseException:
-            _log.debug("Cohesity Cluster is not active")
+        except APIException:
+            _log.debug("APIException raised")
 
         alerts_list1 = []
         for r in alerts_list:
@@ -66,11 +73,12 @@ class Cohesityclusterhealth(nagiosplugin.Resource):
         """
         not_healthy_lst = self.get_cluster_status()
 
-        non_healthy_num = len(critical_c)
+        non_healthy_num = len(not_healthy_lst)
         if non_healthy_num == 0:
             _log.info("Cluster is in an OK status")
         else:
-            _log.debug("{0} alerts returned an unhealthy status".format(non_healthy_num))
+            _log.debug("{0} alerts returned an unhealthy" +
+                       " status".format(non_healthy_num))
 
         metric = nagiosplugin.Metric(
             "Unhealthy cluster alerts",
@@ -84,11 +92,12 @@ def parse_args():
     argp = argparse.ArgumentParser()
     argp.add_argument(
         '-s',
-        '--cohesity_client',
-        help="cohesity ip address, username, and password")
-    argp.add_argument('-i', '--ip', help="cohesity ip address")
-    argp.add_argument('-u', '--user', help="cohesity username")
-    argp.add_argument('-p', '--password', help="cohesity password")
+        '--Cohesity_client',
+        help="Cohesity ip address, username, and password")
+    argp.add_argument('-i', '--ip', help="Cohesity ip address")
+    argp.add_argument('-u', '--user', help="Cohesity username")
+    argp.add_argument('-p', '--password', help="Cohesity password")
+    argp.add_argument('-d', '--domain', help="Cohesity domain")
     argp.add_argument(
         '-w',
         '--warning',
@@ -116,8 +125,11 @@ def main():
         Cohesityclusterhealth(
             args.ip,
             args.user,
-            args.password))
-    check.add(nagiosplugin.ScalarContext('non_healthy_num', args.warning, args.critical))
+            args.password,
+            args.domain))
+    check.add(
+        nagiosplugin.ScalarContext('non_healthy_num',
+                                   args.warning, args.critical))
     check.main(args.verbose, args.timeout)
 
 

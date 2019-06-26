@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
-# Usage : 
-# python check_cohesity_node_status.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
+# Usage :
+# python check_cohesity_node_status.py -i 'IP ADDRESS'
+# -u 'USERNAME' -p 'PASSWORD' -d 'DOMAIN'
 # This script lets the user know if any nodes are not active on cluster
 # Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
-# Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
+# - cohesity_app_sdk
+# Change the execution rights of the program to allow
+# the execution to 'all' (usually chmod 0755).
 import argparse
 import logging
 import nagiosplugin
@@ -15,7 +18,6 @@ import requests
 import json
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
-
 
 _log = logging.getLogger('nagiosplugin')
 
@@ -29,10 +31,10 @@ class Cohesitynodestatus(nagiosplugin.Resource):
         :param password(str): password.
         :param domain(str): domain.
         """
-        self.cohesity_client = CohesityClient(cluster_vip=ip,
-                                              username=user,
-                                              password=password,
-                                              domain=domain)
+        self.ip = ip
+        self.user = user
+        self.password = password
+        self.domain = domain
 
     @property
     def name(self):
@@ -46,9 +48,9 @@ class Cohesitynodestatus(nagiosplugin.Resource):
         global APIROOT
         APIROOT = 'https://' + str(self.ip) + '/irisservices/api/v1'
         creds = json.dumps({
-            "domain": str(DOMAIN),
+            "domain": str(self.domain),
             "password": str(self.password),
-            "username": str(self.username)
+            "username": str(self.user)
         })
         global HEADER
         HEADER = {
@@ -104,7 +106,7 @@ class Cohesitynodestatus(nagiosplugin.Resource):
                 "{0} of {1} active on cluster".format(active, num_nodes))
 
         metric = nagiosplugin.Metric(
-            "Unactive node alerts",
+            "Unactive nodes are",
             bad_nodes,
             min=0,
             context='bad_nodes')
@@ -117,21 +119,22 @@ def parse_args():
         '-s',
         '--cohesity_client',
         help="cohesity ip address, username, and password")
-    argp.add_argument('-i', '--ip', help="cohesity ip address")
-    argp.add_argument('-u', '--user', help="cohesity username")
-    argp.add_argument('-p', '--password', help="cohesity password")
+    argp.add_argument('-i', '--ip', help="Cohesity ip address")
+    argp.add_argument('-u', '--user', help="Cohesity username")
+    argp.add_argument('-p', '--password', help="Cohesity password")
+    argp.add_argument('-d', '--domain', help="Cohesity domain")
     argp.add_argument(
         '-w',
         '--warning',
         metavar='RANGE',
         default='~:0',
-        help='return warning if occupancy is outside RANGE.')
+        help="return warning if occupancy is outside RANGE.")
     argp.add_argument(
         '-c',
         '--critical',
         metavar='RANGE',
         default='~:0',
-        help='return critical if occupancy is outside RANGE.')
+        help="return critical if occupancy is outside RANGE.")
     argp.add_argument('-v', '--verbose', action='count', default=0,
                       help='increase output verbosity (use up to 3 times)')
     argp.add_argument('-t', '--timeout', default=30,
@@ -147,8 +150,10 @@ def main():
         Cohesitynodestatus(
             args.ip,
             args.user,
-            args.password))
-    check.add(nagiosplugin.ScalarContext('bad_nodes', args.warning, args.critical))
+            args.password,
+            args.domain))
+    check.add(nagiosplugin.ScalarContext('bad_nodes',
+                                         args.warning, args.critical))
     check.main(args.verbose, args.timeout)
 
 

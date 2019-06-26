@@ -1,21 +1,26 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
-# Usage : 
-# python check_cohesity_protection_policy_runs.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
-# This script looks at protection runs in the past days that have passed. succesfully
+# Usage :
+# python check_cohesity_protection_policy_runs.py -i 'IP ADDRESS'
+# -u 'USERNAME' -p 'PASSWORD' -d 'DOMAIN'
+# This script looks at protection runs in the past
+# days that have passed. succesfully
 # if all passed it is OK
 # else raise a warning
 # Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
-# Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
+# - cohesity_app_sdk
+# Change the execution rights of the program to allow the
+# execution to 'all' (usually chmod 0755).
 import argparse
 import datetime
 import logging
 import nagiosplugin
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
+from cohesity_app_sdk.exceptions.api_exception import APIException
 
 _log = logging.getLogger('nagiosplugin')
 
@@ -44,9 +49,10 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
         :return: number of passed and failed protection runs
         """
         try:
-            protection_runs_list = self.cohesity_client.protection_runs.get_protection_runs()
-        except BaseException:
-            _log.debug("Cohesity Cluster is not active")
+            protection_runs_list = self.cohesity_client.\
+                protection_runs.get_protection_runs()
+        except APIException:
+            _log.debug("APIException raised")
 
         today = datetime.datetime.now()
         margin = datetime.timedelta(days=1)
@@ -57,21 +63,28 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
             try:
                 if protection_runs.backup_run.status != 'kFailure':
                     if today - margin <= self.epoch_to_date(
-                            protection_runs.backup_run.stats.end_time_usecs) <= today + margin:
+                            protection_runs.backup_run.stats.
+                            end_time_usecs) <= today + margin:
                         listt.append(protection_runs.job_name)
-                elif today - margin <= self.epoch_to_date(protection_runs.backup_run.stats.end_time_usecs) <= today + margin:
+                elif today - margin <= self.epoch_to_date(protection_runs.
+                                                          backup_run.stats.
+                                                          end_time_usecs
+                                                          ) <= today + margin:
                     notnum = 1 + notnum
-            except TypeError as e:
+            except TypeError:
                 print ("")
         for protection_runs in protection_runs_list:
             try:
                 if protection_runs.copy_run[0].status != 'kFailure':
                     if today - margin <= self.epoch_to_date(
-                            protection_runs.copy_run[0].run_start_time_usecs) <= today + margin:
+                            protection_runs.copy_run[0].
+                            run_start_time_usecs) <= today + margin:
                         listt.append(protection_runs.job_name)
-                elif today - margin <= self.epoch_to_date(protection_runs.copy_run[0].run_start_time_usecs) <= today + margin:
+                elif today - margin <= self.epoch_to_date(
+                        protection_runs.copy_run[0].
+                        run_start_time_usecs) <= today + margin:
                     notnum = 1 + notnum
-            except TypeError as e:
+            except TypeError:
                 print ("")
 
         num = len(listt)
@@ -88,10 +101,12 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
 
         if fail == 0:
             _log.info(
-                "All {0} protection runs (backup + copy run) are not in failure status".format(succesfully))
+                "All {0} protection runs (backup + copy run)" +
+                " are not in failure status".format(succesfully))
         else:
             _log.debug(
-                "{0} protection runs have failed and {1} have passed".format(fail, succesfully))
+                "{0} protection runs have failed and {1}" +
+                " have passed".format(fail, succesfully))
 
         metric = nagiosplugin.Metric(
             "Failed protection runs",
@@ -114,11 +129,12 @@ def parse_args():
     argp = argparse.ArgumentParser()
     argp.add_argument(
         '-s',
-        '--cohesity_client',
-        help="cohesity ip address, username, and password")
-    argp.add_argument('-i', '--ip', help="cohesity ip address")
-    argp.add_argument('-u', '--user', help="cohesity username")
-    argp.add_argument('-p', '--password', help="cohesity password")
+        '--Cohesity_client',
+        help="Cohesity ip address, username, and password")
+    argp.add_argument('-i', '--ip', help="Cohesity ip address")
+    argp.add_argument('-u', '--user', help="Cohesity username")
+    argp.add_argument('-p', '--password', help="Cohesity password")
+    argp.add_argument('-d', '--domain', help="Cohesity domain")
     argp.add_argument(
         '-w',
         '--warning',
@@ -144,7 +160,10 @@ def main():
     args = parse_args()
     check = nagiosplugin.Check(
         Cohesityprotectionstatus(
-            args.ip, args.user, args.password))
+            args.ip,
+            args.user,
+            args.password,
+            args.domain))
     check.add(
         nagiosplugin.ScalarContext(
             'failures',
