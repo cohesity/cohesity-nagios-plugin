@@ -5,7 +5,8 @@
 # python check_cohesity_cluster_metstorage.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
 # check used metadata storage of cohesity cluster
 # and returns a warning if the usage is over 60%, and a critical
-# alert if the usage is above 80%.# Requires the following non-core Python modules:
+# alert if the usage is above 80%.
+# Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
 # Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
