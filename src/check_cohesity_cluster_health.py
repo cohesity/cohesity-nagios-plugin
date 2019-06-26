@@ -55,7 +55,7 @@ class Cohesityclusterhealth(nagiosplugin.Resource):
 
         alerts_list1 = []
         for r in alerts_list:
-            if r.alert_severity == "kCritical" or "kWarning":
+            if r.alert_severity == 'kCritical' or 'kWarning':
                 r.append(alerts_list1)
         return alerts_list1
 
@@ -68,12 +68,12 @@ class Cohesityclusterhealth(nagiosplugin.Resource):
 
         non_healthy_num = len(critical_c)
         if non_healthy_num == 0:
-            _log.info('Cluster' + ' is in an OK status')
+            _log.info("Cluster is in an OK status")
         else:
-            _log.debug(str(non_healthy_num) + ' returned an unhealthy status')
+            _log.debug("{0} alerts returned an unhealthy status".format(non_healthy_num))
 
         metric = nagiosplugin.Metric(
-            'Unhealthy cluster alerts',
+            "Unhealthy cluster alerts",
             non_healthy_num,
             min=0,
             context='non_healthy_num')
