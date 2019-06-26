@@ -1,17 +1,13 @@
 #!/usr/bin/env python
-
 # Copyright 2019 Cohesity Inc.
-
-
-"""
-check_cohesity_node_status.py
-This script lets the user know if any nodes are not active on cluster,
-Requires the following non-core Python modules:
-- nagiosplugin
-- cohesity/app-sdk-python
-Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
-Created by Christina Mudarth
-"""
+# Author : Christina Mudarth <christina.mudarth@cohesity.com>
+# Usage : 
+# python check_cohesity_node_status.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
+# This script lets the user know if any nodes are not active on cluster
+# Requires the following non-core Python modules:
+# - nagiosplugin
+# - cohesity_management_sdk
+# Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
 import argparse
 import logging
 import nagiosplugin
