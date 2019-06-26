@@ -36,7 +36,7 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
 
     @property
     def name(self):
-        return 'cohesity_PROTECTION_RUN_STATUS'
+        return 'COHESITY_PROTECTION_RUN_STATUS'
 
     def get_protection_status(self):
         """
