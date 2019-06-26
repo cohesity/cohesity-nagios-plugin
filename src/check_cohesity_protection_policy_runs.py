@@ -56,8 +56,8 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
 
         today = datetime.datetime.now()
         margin = datetime.timedelta(days=1)
-        listt = []
-        notnum = 0
+        list_of_runs = []
+        not_failed = 0
 
         for protection_runs in protection_runs_list:
             try:
@@ -65,12 +65,12 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
                     if today - margin <= self.epoch_to_date(
                             protection_runs.backup_run.stats.
                             end_time_usecs) <= today + margin:
-                        listt.append(protection_runs.job_name)
+                        list_of_runs.append(protection_runs.job_name)
                 elif today - margin <= self.epoch_to_date(protection_runs.
                                                           backup_run.stats.
                                                           end_time_usecs
                                                           ) <= today + margin:
-                    notnum = 1 + notnum
+                    not_failed = 1 + not_failed
             except TypeError:
                 print ("")
         for protection_runs in protection_runs_list:
@@ -79,16 +79,16 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
                     if today - margin <= self.epoch_to_date(
                             protection_runs.copy_run[0].
                             run_start_time_usecs) <= today + margin:
-                        listt.append(protection_runs.job_name)
+                        list_of_runs.append(protection_runs.job_name)
                 elif today - margin <= self.epoch_to_date(
                         protection_runs.copy_run[0].
                         run_start_time_usecs) <= today + margin:
-                    notnum = 1 + notnum
+                    not_failed = 1 + not_failed
             except TypeError:
                 print ("")
 
-        num = len(listt)
-        return [num, notnum]
+        number_runs = len(list_of_runs)
+        return [number_runs, not_failed]
 
     def probe(self):
         """
