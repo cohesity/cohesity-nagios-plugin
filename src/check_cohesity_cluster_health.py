@@ -14,12 +14,13 @@ Requires the following non-core Python modules:
 Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
 Created by Christina Mudarth
 """
-from cohesity_management_sdk.cohesity_client import CohesityClient
-from cohesity_management_sdk.models.alert_state_list_enum import AlertStateListEnum
-from cohesity_management_sdk.models.alert_category_list_enum import AlertCategoryListEnum
 import argparse
 import logging
 import nagiosplugin
+
+from cohesity_management_sdk.cohesity_client import CohesityClient
+from cohesity_management_sdk.models.alert_state_list_enum import AlertStateListEnum
+from cohesity_management_sdk.models.alert_category_list_enum import AlertCategoryListEnum
 
 DOMAIN = 'LOCAL'
 
