@@ -59,10 +59,10 @@ class Cohesityalerts(nagiosplugin.Resource):
         alerts_list1 = []
         alerts_list2 = []
         for r in alerts_list:
-            if r.severity == "kCritical":
-                alerts_list1.append("critical")
-            if r.severity == "kWarning":
-                alerts_list2.append("warning")
+            if r.severity == 'kCritical':
+                alerts_list1.append('critical')
+            if r.severity == 'kWarning':
+                alerts_list2.append('warning')
         critical = len(alerts_list1)
         warning = len(alerts_list2)
         return [critical, warning]
@@ -79,17 +79,13 @@ class Cohesityalerts(nagiosplugin.Resource):
 
         if critical > 0 or warning > 0:
             _log.debug(
-                'There are ' +
-                str(critical) +
-                ' alerts in critical status and ' +
-                str(warning) +
-                ' alerts in warning status in the past day')
+                "There are {0} alerts in critical status and {1} alerts in warning status in the past day".format(critical, warning))
         else:
             _log.info(
-                'All alerts are in info status or no alerts exist in the past day')
+                "All alerts are in info status or no alerts exist in the past day")
 
         metric = nagiosplugin.Metric(
-            'Alerts with issues',
+            "Alerts with issues",
             combined,
             min=0,
             context='warning/critical')
