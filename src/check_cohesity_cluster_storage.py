@@ -1,19 +1,15 @@
 #!/usr/bin/env python
-
 # Copyright 2019 Cohesity Inc.
-
-"""
-check used metadata storage of cohesity cluster
-
-and returns a warning if the usage is over 60%, and a critical
-alert if the usage is above 80%.
-
-Requires the following non-core Python modules:
-- nagiosplugin
-- cohesity sdk
-user excecution rights to all
-
-"""
+# Author : Christina Mudarth <christina.mudarth@cohesity.com>
+# Usage : 
+# python check_cohesity_cluster_storage.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
+# check used storage of cohesity cluster
+# and returns a warning if the usage is over 60%, and a critical
+# alert if the usage is above 80%.
+# Requires the following non-core Python modules:
+# - nagiosplugin
+# - cohesity_management_sdk
+# Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
 import argparse
 import logging
 import nagiosplugin
