@@ -55,7 +55,7 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
 
         for protection_runs in protection_runs_list:
             try:
-                if protection_runs.backup_run.status != "kFailure":
+                if protection_runs.backup_run.status != 'kFailure':
                     if today - margin <= self.epoch_to_date(
                             protection_runs.backup_run.stats.end_time_usecs) <= today + margin:
                         listt.append(protection_runs.job_name)
@@ -65,7 +65,7 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
                 print ("")
         for protection_runs in protection_runs_list:
             try:
-                if protection_runs.copy_run[0].status != "kFailure":
+                if protection_runs.copy_run[0].status != 'kFailure':
                     if today - margin <= self.epoch_to_date(
                             protection_runs.copy_run[0].run_start_time_usecs) <= today + margin:
                         listt.append(protection_runs.job_name)
@@ -88,18 +88,13 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
 
         if fail == 0:
             _log.info(
-                'All ' +
-                str(succesfully) +
-                ' protection runs (backup + copy run) are not in failure status')
+                "All {0} protection runs (backup + copy run) are not in failure status".format(succesfully))
         else:
             _log.debug(
-                str(fail) +
-                ' protection runs have failed and ' +
-                str(succesfully) +
-                ' have passed')
+                "{0} protection runs have failed and {1} have passed".format(fail, succesfully))
 
         metric = nagiosplugin.Metric(
-            'Failed protection runs',
+            "Failed protection runs",
             fail,
             min=0,
             context='failures')
