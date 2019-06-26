@@ -80,7 +80,7 @@ Follow steps to add python files to nagios core plugin :
 Note: 
   * In terminal to run the scripts ensure to use the following commands
   ```
-  python check_cohesity_cluster_storage.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
+  python check_cohesity_cluster_storage.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD' -d 'DOMAIN'
   
   ```
   * To run scripts on nagios UI ensure to initialize the information by editing the script (ip, user, password)
