@@ -80,7 +80,7 @@ def parse_args():
     argp = argparse.ArgumentParser()
     argp.add_argument(
         '-s',
-        '--C*ohesity_client',
+        '--Cohesity_client',
         help="Cohesity ip address, username, and password")
     argp.add_argument('-i', '--ip', help="Cohesity hostname or ip address")
     argp.add_argument('-u', '--user', help="Cohesity username")
