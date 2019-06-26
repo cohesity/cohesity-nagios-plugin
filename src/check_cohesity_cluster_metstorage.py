@@ -58,9 +58,7 @@ class Cohesityclusterstorage(nagiosplugin.Resource):
         percent_used = int(self.get_cluster_storage())
 
         _log.info(
-            'Cluster Metadata storage is ' +
-            str(percent_used) +
-            '% used')
+            "Cluster Metadata storage is {0} % used".format(percent_used))
         metric = nagiosplugin.Metric(
             'Cluster used Metadata storage',
             percent_used,
