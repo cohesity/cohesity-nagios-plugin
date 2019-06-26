@@ -79,8 +79,8 @@ class Cohesitynodestatus(nagiosplugin.Resource):
             for nodes in node_stats:
                 num_nodes = num_nodes + 1
                 activity.append(0)
-                for service in nodes["serviceStatus"]:
-                    if len(service["processIds"]) > 1:
+                for service in nodes['serviceStatus']:
+                    if len(service['processIds']) > 1:
                         activity[num_nodes - 1] = 1
                         break
             return activity
@@ -98,16 +98,13 @@ class Cohesitynodestatus(nagiosplugin.Resource):
         bad_nodes = num_nodes - active
 
         if num_nodes == active:
-            _log.info('All ' + str(num_nodes) + ' nodes active')
+            _log.info("All {0} nodes active".format(num_nodes))
         else:
             _log.debug(
-                str(active) +
-                ' of ' +
-                str(num_nodes) +
-                ' active on cluster')
+                "{0} of {1} active on cluster".format(active, num_nodes))
 
         metric = nagiosplugin.Metric(
-            'Unactive node alerts',
+            "Unactive node alerts",
             bad_nodes,
             min=0,
             context='bad_nodes')
