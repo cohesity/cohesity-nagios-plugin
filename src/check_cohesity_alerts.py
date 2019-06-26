@@ -17,27 +17,22 @@ import nagiosplugin
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.models.alert_state_list_enum import AlertStateListEnum
 
-DOMAIN = 'LOCAL'
-
 
 _log = logging.getLogger('nagiosplugin')
 
 
 class Cohesityalerts(nagiosplugin.Resource):
-    def __init__(self, ip, user, password):
+    def __init__(self, ip, user, password, domain):
         """
         Method to initialize
         :param ip(str): ip address.
         :param user(str): username.
         :param password(str): password.
         """
-        self.ip = ip
-        self.user = user
-        self.password = password
         self.cohesity_client = CohesityClient(cluster_vip=ip,
                                               username=user,
                                               password=password,
-                                              domain=DOMAIN)
+                                              domain=domain)
 
     @property
     def name(self):
