@@ -95,7 +95,7 @@ class Cohesitynodestatus(nagiosplugin.Resource):
         activity = self.get_node_status()
         num_nodes = len(activity)
         active = activity.count(1)
-        bad_c = num_nodes - active
+        bad_nodes = num_nodes - active
 
         if num_nodes == active:
             _log.info('All ' + str(num_nodes) + ' nodes active')
@@ -108,9 +108,9 @@ class Cohesitynodestatus(nagiosplugin.Resource):
 
         metric = nagiosplugin.Metric(
             'Unactive node alerts',
-            bad_c,
+            bad_nodes,
             min=0,
-            context='bad_c')
+            context='bad_nodes')
         return metric
 
 
@@ -151,7 +151,7 @@ def main():
             args.ip,
             args.user,
             args.password))
-    check.add(nagiosplugin.ScalarContext('bad_c', args.warning, args.critical))
+    check.add(nagiosplugin.ScalarContext('bad_nodes', args.warning, args.critical))
     check.main(args.verbose, args.timeout)
 
 
