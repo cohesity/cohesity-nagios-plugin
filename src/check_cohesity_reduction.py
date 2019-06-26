@@ -15,7 +15,6 @@ import nagiosplugin
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
 
-DOMAIN = 'LOCAL'
 _log = logging.getLogger('nagiosplugin')
 
 
