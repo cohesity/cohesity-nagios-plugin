@@ -35,7 +35,7 @@ class Cohesityclusterstorage(nagiosplugin.Resource):
 
     @property
     def name(self):
-        return 'cohesity_CLUSTER_METASTORAGE'
+        return 'COHESITY_CLUSTER_METASTORAGE'
 
     def get_cluster_storage(self):
         """
