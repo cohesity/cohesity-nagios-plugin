@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
-# Author : Christina Mudarth <your_email_id>
+# Author : Christina Mudarth <christina.mudarth@cohesity.com>
 # Usage : 
 # python check_cohesity_alerts.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD'
 # This script looks at alerts and raises an alert for Alert status of type: warnings or severe status'
