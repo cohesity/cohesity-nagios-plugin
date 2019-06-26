@@ -85,13 +85,10 @@ Note:
   ```
   * To run scripts on nagios UI ensure to initialize the information by editing the script (ip, user, password)
   ```
-  self.ip = ip
+        self.ip = ip
         self.user = user
         self.password = password
-        self.cohesity_client = CohesityClient(cluster_vip=ip,
-                                              username=user,
-                                              password=password,
-                                              domain=DOMAIN)
+        self.domain = domain
                                               
   ```
  ## Step 4 :tada:
