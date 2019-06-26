@@ -12,13 +12,13 @@ Requires the following non-core Python modules:
 Change the execution rights of the program to allow the execution to 'all' (usually chmod 0755).
 Created by Christina Mudarth
 """
-from cohesity_management_sdk.cohesity_client import CohesityClient
 import argparse
 import logging
 import nagiosplugin
 import requests
 import json
 
+from cohesity_management_sdk.cohesity_client import CohesityClient
 
 DOMAIN = 'LOCAL'
 
