@@ -11,7 +11,6 @@
 # Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
-# - cohesity_app_sdk
 # Change the execution rights of the program to allow the
 # execution to 'all' (usually chmod 0755).
 import argparse
@@ -20,12 +19,14 @@ import logging
 import nagiosplugin
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
-from cohesity_app_sdk.exceptions.api_exception import APIException
+from cohesity_management_sdk.exceptions.api_exception import APIException
+from cohesity_management_sdk.models.status_backup_run_enum import (
+    StatusBackupRunEnum)
 
 _log = logging.getLogger('nagiosplugin')
 
 
-class Cohesityprotectionstatus(nagiosplugin.Resource):
+class CohesityProtectionStatus(nagiosplugin.Resource):
     def __init__(self, ip, user, password, domain):
         """
         Method to initialize
@@ -51,8 +52,8 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
         try:
             protection_runs_list = self.cohesity_client.\
                 protection_runs.get_protection_runs()
-        except APIException:
-            _log.debug("APIException raised")
+        except APIException as e:
+            _log.debug("APIException raised: " + e)
 
         today = datetime.datetime.now()
         margin = datetime.timedelta(days=1)
@@ -61,7 +62,8 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
 
         for protection_runs in protection_runs_list:
             try:
-                if protection_runs.backup_run.status != 'kFailure':
+                if protection_runs.backup_run.status != (
+                        StatusBackupRunEnum.KFAILURE):
                     if today - margin <= self.epoch_to_date(
                             protection_runs.backup_run.stats.
                             end_time_usecs) <= today + margin:
@@ -75,7 +77,8 @@ class Cohesityprotectionstatus(nagiosplugin.Resource):
                 print ("")
         for protection_runs in protection_runs_list:
             try:
-                if protection_runs.copy_run[0].status != 'kFailure':
+                if protection_runs.copy_run[0].status != (
+                        StatusBackupRunEnum.KFAILURE):
                     if today - margin <= self.epoch_to_date(
                             protection_runs.copy_run[0].
                             run_start_time_usecs) <= today + margin:
@@ -131,26 +134,45 @@ def parse_args():
         '-s',
         '--Cohesity_client',
         help="Cohesity ip address, username, and password")
-    argp.add_argument('-i', '--ip', help="Cohesity ip address")
-    argp.add_argument('-u', '--user', help="Cohesity username")
-    argp.add_argument('-p', '--password', help="Cohesity password")
-    argp.add_argument('-d', '--domain', help="Cohesity domain")
+    argp.add_argument(
+        '-i',
+        '--ip',
+        help="Cohesity ip address")
+    argp.add_argument(
+        '-u',
+        '--user',
+        help="Cohesity username")
+    argp.add_argument(
+        '-p',
+        '--password',
+        help="Cohesity password")
+    argp.add_argument(
+        '-d',
+        '--domain',
+        help="Cohesity domain")
     argp.add_argument(
         '-w',
         '--warning',
         metavar='RANGE',
         default='~:0',
-        help='return warning if occupancy is outside RANGE.')
+        help='return warning if occupancy is outside RANGE')
     argp.add_argument(
         '-c',
         '--critical',
         metavar='RANGE',
         default='~:0',
-        help='return critical if occupancy is outside RANGE. ')
-    argp.add_argument('-v', '--verbose', action='count', default=0,
-                      help='increase output verbosity (use up to 3 times)')
-    argp.add_argument('-t', '--timeout', default=30,
-                      help='abort execution after TIMEOUT seconds')
+        help='return critical if occupancy is outside RANGE')
+    argp.add_argument(
+        '-v',
+        '--verbose',
+        action='count',
+        default=0,
+        help='increase output verbosity (use up to 3 times)')
+    argp.add_argument(
+        '-t',
+        '--timeout',
+        default=30,
+        help='abort execution after TIMEOUT seconds')
     return argp.parse_args()
 
 
@@ -159,7 +181,7 @@ def main():
 
     args = parse_args()
     check = nagiosplugin.Check(
-        Cohesityprotectionstatus(
+        CohesityProtectionStatus(
             args.ip,
             args.user,
             args.password,
