@@ -4,6 +4,6 @@
 # write credentials as a string
 
 ip = 'IP'
-username = 'USERNAME'
-password = 'PASSWORD'
+username = 'USER'
+password = 'PASS'
 domain = 'DOMAIN'

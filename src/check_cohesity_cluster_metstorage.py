@@ -2,8 +2,7 @@
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
 # Usage :
-# python check_cohesity_cluster_metstorage.py -i 'IP ADDRESS'
-# -u 'USERNAME' -p 'PASSWORD'
+# python check_cohesity_cluster_metstorage.py
 # check used metadata storage of cohesity cluster
 # and returns a warning if the usage is over 60%, and a critical
 # alert if the usage is above 80%.
@@ -15,6 +14,7 @@
 import argparse
 import logging
 import nagiosplugin
+import config
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.exceptions.api_exception import APIException
@@ -23,7 +23,7 @@ _log = logging.getLogger('nagiosplugin')
 
 
 class CohesityClusterStorage(nagiosplugin.Resource):
-    def __init__(self, ip, user, password, domain):
+    def __init__(self):
         """
         Method to initialize
         :param ip(str): ip address.
@@ -31,10 +31,10 @@ class CohesityClusterStorage(nagiosplugin.Resource):
         :param password(str): password.
         :param domain(str): domain.
         """
-        self.cohesity_client = CohesityClient(cluster_vip=ip,
-                                              username=user,
-                                              password=password,
-                                              domain=domain)
+        self.cohesity_client = CohesityClient(cluster_vip=config.ip,
+                                              username=config.username,
+                                              password=config.password,
+                                              domain=config.domain)
 
     @property
     def name(self):
@@ -75,26 +75,6 @@ class CohesityClusterStorage(nagiosplugin.Resource):
 def parse_args():
     argp = argparse.ArgumentParser()
     argp.add_argument(
-        '-s',
-        '--Cohesity_client',
-        help="Cohesity ip address, username, and password")
-    argp.add_argument(
-        '-i',
-        '--ip',
-        help="Cohesity ip address")
-    argp.add_argument(
-        '-u',
-        '--user',
-        help="Cohesity username")
-    argp.add_argument(
-        '-p',
-        '--password',
-        help="Cohesity password")
-    argp.add_argument(
-        '-d',
-        '--domain',
-        help="Cohesity domain")
-    argp.add_argument(
         '-w',
         '--warning',
         metavar='RANGE',
@@ -124,11 +104,7 @@ def parse_args():
 def main():
     args = parse_args()
     check = nagiosplugin.Check(
-        CohesityClusterStorage(
-            args.ip,
-            args.user,
-            args.password,
-            args.domain))
+        CohesityClusterStorage())
     check.add(
         nagiosplugin.ScalarContext(
             'cluster_used',

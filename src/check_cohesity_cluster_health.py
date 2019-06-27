@@ -2,8 +2,7 @@
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
 # Usage :
-# python check_cohesity_cluster_health.py -i 'IP ADDRESS' -u
-# 'USERNAME' -p 'PASSWORD' -d 'DOMAIN'
+# python check_cohesity_cluster_health.py
 # This script lets the user know if the cluster is healthy or not,
 # if there are no warnings or critical status'
 # an OK status is returned
@@ -15,6 +14,7 @@
 import argparse
 import logging
 import nagiosplugin
+import config
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.models.alert_state_list_enum import (
@@ -29,7 +29,7 @@ _log = logging.getLogger('nagiosplugin')
 
 
 class CohesityClusterHealth(nagiosplugin.Resource):
-    def __init__(self, ip, user, password, domain):
+    def __init__(self):
         """
         Method to initialize
         :param ip(str): ip address.
@@ -37,10 +37,10 @@ class CohesityClusterHealth(nagiosplugin.Resource):
         :param password(str): password.
         :param domain(str): domain.
         """
-        self.cohesity_client = CohesityClient(cluster_vip=ip,
-                                              username=user,
-                                              password=password,
-                                              domain=domain)
+        self.cohesity_client = CohesityClient(cluster_vip=config.ip,
+                                              username=config.username,
+                                              password=config.password,
+                                              domain=config.domain)
 
     @property
     def name(self):
@@ -92,26 +92,6 @@ class CohesityClusterHealth(nagiosplugin.Resource):
 def parse_args():
     argp = argparse.ArgumentParser()
     argp.add_argument(
-        '-s',
-        '--Cohesity_client',
-        help="Cohesity ip address, username, and password")
-    argp.add_argument(
-        '-i',
-        '--ip',
-        help="Cohesity ip address")
-    argp.add_argument(
-        '-u',
-        '--user',
-        help="Cohesity username")
-    argp.add_argument(
-        '-p',
-        '--password',
-        help="Cohesity password")
-    argp.add_argument(
-        '-d',
-        '--domain',
-        help="Cohesity domain")
-    argp.add_argument(
         '-w',
         '--warning',
         metavar='RANGE',
@@ -142,11 +122,7 @@ def main():
 
     args = parse_args()
     check = nagiosplugin.Check(
-        CohesityClusterHealth(
-            args.ip,
-            args.user,
-            args.password,
-            args.domain))
+        CohesityClusterHealth())
     check.add(
         nagiosplugin.ScalarContext('non_healthy_num',
                                    args.warning, args.critical))
