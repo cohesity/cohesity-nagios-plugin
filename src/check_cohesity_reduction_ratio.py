@@ -2,7 +2,7 @@
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
 # Usage :
-# python check_cohesity_reduction.py
+# python check_cohesity_reduction_ratio.py
 # check storage reduction of cohesity cluster
 # Info notifications, warning if ratio is between 0 - 50
 # Requires the following non-core Python modules:
