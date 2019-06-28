@@ -104,10 +104,12 @@ class CohesityProtectionStatus(nagiosplugin.Resource):
 
         if fail == 0:
             _log.info(
+                "Cluster ip = {}: ".format(config.ip) +
                 "All {0} protection".format(succesfully) +
                 " runs (backup + copy run) are not in failure status")
         else:
             _log.debug(
+                "Cluster ip = {}: ".format(config.ip) +
                 "{} protection runs have failed".format(fail) +
                 " and {} have passed".format(succesfully))
 

@@ -99,9 +99,11 @@ class CohesityNodeStatus(nagiosplugin.Resource):
         bad_nodes = num_nodes - active
 
         if num_nodes == active:
-            _log.info("All {0} nodes active".format(num_nodes))
+            _log.info("Cluster ip = {}: ".format(config.ip) +
+                      "All {0} nodes active".format(num_nodes))
         else:
             _log.debug(
+                "Cluster ip = {}: ".format(config.ip) +
                 "{0} of {1} active on cluster".format(active, num_nodes))
 
         metric = nagiosplugin.Metric(

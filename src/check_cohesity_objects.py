@@ -72,7 +72,8 @@ class CohesityObjects(nagiosplugin.Resource):
             float(protected_objects) /
             float(total_protected) *
             100)
-        _log.info("Percentage of sources protected {0} %".format(percent_p))
+        _log.info("Cluster ip = {}: ".format(config.ip) +
+                  "Percentage of sources protected {0} %".format(percent_p))
         metric = nagiosplugin.Metric(
             "Percentage of sources protected",
             percent_p,

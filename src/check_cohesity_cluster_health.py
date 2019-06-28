@@ -76,9 +76,11 @@ class CohesityClusterHealth(nagiosplugin.Resource):
 
         non_healthy_num = len(not_healthy_lst)
         if non_healthy_num == 0:
-            _log.info("Cluster is in an OK status")
+            _log.info("Cluster ip = {}: ".format(config.ip) +
+                      "Cluster is in an OK status")
         else:
-            _log.debug("{0} alerts returned".format(non_healthy_num) +
+            _log.debug("Cluster ip = {}: ".format(config.ip) +
+                       "{0} alerts returned".format(non_healthy_num) +
                        " an unhealthy status")
         metric = nagiosplugin.Metric(
             "Unhealthy cluster alerts",

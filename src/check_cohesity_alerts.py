@@ -86,11 +86,13 @@ class CohesityAlerts(nagiosplugin.Resource):
 
         if critical > 0 or warning > 0:
             _log.debug(
+                "Cluster ip = {}: ".format(config.ip) +
                 "There are {} alerts in critical".format(critical) +
                 " status and {} ".format(warning) + "alerts in warning" +
                 " status in the past day")
         else:
             _log.info(
+                "Cluster ip = {}: ".format(config.ip) +
                 "All alerts are in info status or no alerts" +
                 " exist in the past day")
 

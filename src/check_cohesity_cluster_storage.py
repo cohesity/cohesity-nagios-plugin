@@ -64,7 +64,8 @@ class CohesityClusterStorage(nagiosplugin.Resource):
         storage = self.get_cluster_storage()
         percent_used = int((float(storage[0]) / float(storage[1])) * 100)
 
-        _log.info("Cluster storage is {0} % used".format(percent_used))
+        _log.info("Cluster ip = {}: ".format(config.ip) +
+                  "Cluster storage is {0} % used".format(percent_used))
         metric = nagiosplugin.Metric(
             "Cluster used  storage",
             percent_used,
