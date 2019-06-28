@@ -12,15 +12,15 @@
 # Change the execution rights of the program to allow
 # the execution to 'all' (usually chmod 0755).
 import argparse
+import config
 import datetime
 import logging
 import nagiosplugin
-import config
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
+from cohesity_management_sdk.exceptions.api_exception import APIException
 from cohesity_management_sdk.models.alert_state_list_enum import (
                                                 AlertStateListEnum)
-from cohesity_management_sdk.exceptions.api_exception import APIException
 from cohesity_management_sdk.models.alert_severity_list_enum import (
                                                 AlertSeverityListEnum)
 
@@ -86,9 +86,9 @@ class CohesityAlerts(nagiosplugin.Resource):
 
         if critical > 0 or warning > 0:
             _log.debug(
-                "There are {0} alerts in critical status and {1} " +
-                "alerts in warning status in the past" +
-                "day".format(critical, warning))
+                "There are {} alerts in critical".format(critical) +
+                " status and {} ".format(warning) + "alerts in warning" +
+                " status in the past day")
         else:
             _log.info(
                 "All alerts are in info status or no alerts" +

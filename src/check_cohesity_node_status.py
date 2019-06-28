@@ -10,11 +10,11 @@
 # Change the execution rights of the program to allow
 # the execution to 'all' (usually chmod 0755).
 import argparse
+import config
+import json
 import logging
 import nagiosplugin
 import requests
-import json
-import config
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.exceptions.api_exception import APIException
@@ -105,7 +105,7 @@ class CohesityNodeStatus(nagiosplugin.Resource):
                 "{0} of {1} active on cluster".format(active, num_nodes))
 
         metric = nagiosplugin.Metric(
-            "Unactive nodes are",
+            "Unactive nodes are/",
             bad_nodes,
             min=0,
             context='bad_nodes')

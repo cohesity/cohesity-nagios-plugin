@@ -6,17 +6,17 @@
 # This script looks at protection runs in the past
 # days that have passed. succesfully
 # if all passed it is OK
-# else raise a warning
+# else raise a warning and error
 # Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
 # Change the execution rights of the program to allow the
 # execution to 'all' (usually chmod 0755).
 import argparse
+import config
 import datetime
 import logging
 import nagiosplugin
-import config
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.exceptions.api_exception import APIException
@@ -104,12 +104,12 @@ class CohesityProtectionStatus(nagiosplugin.Resource):
 
         if fail == 0:
             _log.info(
-                "All {0} protection runs (backup + copy run)" +
-                " are not in failure status".format(succesfully))
+                "All {0} protection".format(succesfully) +
+                " runs (backup + copy run) are not in failure status")
         else:
             _log.debug(
-                "{0} protection runs have failed and {1}" +
-                " have passed".format(fail, succesfully))
+                "{} protection runs have failed".format(fail) +
+                " and {} have passed".format(succesfully))
 
         metric = nagiosplugin.Metric(
             "Failed protection runs",

@@ -12,18 +12,18 @@
 # Change the execution rights of the program to allow the execution
 # to 'all' (usually chmod 0755).
 import argparse
+import config
 import logging
 import nagiosplugin
-import config
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.models.alert_state_list_enum import (
     AlertStateListEnum)
+from cohesity_management_sdk.models.alert_severity_list_enum import (
+    AlertSeverityListEnum)
 from cohesity_management_sdk.models.alert_category_list_enum import (
     AlertCategoryListEnum)
 from cohesity_management_sdk.exceptions.api_exception import APIException
-from cohesity_management_sdk.models.alert_severity_list_enum import (
-    AlertSeverityListEnum)
 
 _log = logging.getLogger('nagiosplugin')
 
@@ -78,9 +78,8 @@ class CohesityClusterHealth(nagiosplugin.Resource):
         if non_healthy_num == 0:
             _log.info("Cluster is in an OK status")
         else:
-            _log.debug("{0} alerts returned an unhealthy" +
-                       " status".format(non_healthy_num))
-
+            _log.debug("{0} alerts returned".format(non_healthy_num) +
+                       " an unhealthy status")
         metric = nagiosplugin.Metric(
             "Unhealthy cluster alerts",
             non_healthy_num,

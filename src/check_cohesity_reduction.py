@@ -4,16 +4,16 @@
 # Usage :
 # python check_cohesity_reduction.py
 # check storage reduction of cohesity cluster
-# Info notifications
+# Info notifications, warning if ratio is between 0 - 50
 # Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
 # Change the execution rights of the program to
 # allow the execution to 'all' (usually chmod 0755).
 import argparse
+import config
 import logging
 import nagiosplugin
-import config
 
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.exceptions.api_exception import APIException
@@ -74,7 +74,7 @@ def parse_args():
         '-w',
         '--warning',
         metavar='RANGE',
-        default='~:0',
+        default='@0:50',
         help='return warning if occupancy is outside RANGE')
     argp.add_argument(
         '-v',
