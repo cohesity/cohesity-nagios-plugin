@@ -2,15 +2,14 @@
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
 # Usage :
-# python check_cohesity_objects.py -i 'IP ADDRESS' -u 'USERNAME'
-# -p 'PASSWORD' -d 'DOMAIN'
-# check sources protected
-# and returns a warning the protected sources exceeds 90%
+# python check_cohesity_reduction_ratio.py
+# check storage reduction of cohesity cluster
+# Info notifications, warning if ratio is between 0 - 50
 # Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
-# Change the execution rights of the program to allow the
-# execution to 'all' (usually chmod 0755).
+# Change the execution rights of the program to
+# allow the execution to 'all' (usually chmod 0755).
 import argparse
 import config
 import logging
@@ -22,7 +21,7 @@ from cohesity_management_sdk.exceptions.api_exception import APIException
 _log = logging.getLogger('nagiosplugin')
 
 
-class CohesityObjects(nagiosplugin.Resource):
+class CohesityClusterReduction(nagiosplugin.Resource):
     def __init__(self):
         """
         Method to initialize
@@ -38,49 +37,35 @@ class CohesityObjects(nagiosplugin.Resource):
 
     @property
     def name(self):
-        return 'COHESITY_CLUSTER_OBJECTS_PROTECTED'
+        return 'COHESITY_CLUSTER_DATA_REDUCTION'
 
-    def get_object(self):
+    def get_cluster_reduction(self):
         """
-        Method to get the cohesity objects protected and not protected
-        :return: list(lst): of protected and not protected
+        Method to get the cohesity reduction ratio
+        :return: list(lst): ratio
         """
         try:
-            object_list = self.cohesity_client.protection_sources.\
-                list_protection_sources_registration_info(
-                    include_entity_permission_info=True)
+            cluster_stats = self.cohesity_client.cluster.\
+                get_cluster(fetch_stats=True)
+            reduction = cluster_stats.stats.data_reduction_ratio
         except APIException as e:
             _log.debug("APIException raised: " + e)
-        protected = 0
-        unprotected = 0
-        stats = object_list.stats_by_env
-        for r in stats:
-            protected = r.protected_count + protected
-            unprotected = r.unprotected_count + unprotected
 
-        return [protected, unprotected]
+        return reduction
 
     def probe(self):
         """
         Method to get the status
-        :return: metric(str): nagios status.
         """
-        objects = self.get_object()
-        total_protected = float(objects[0]) + float(objects[1])
-        protected_objects = objects[0]
-        percent_p = int(
-            float(protected_objects) /
-            float(total_protected) *
-            100)
+        ratio = int(self.get_cluster_reduction())
+
         _log.info("Cluster ip = {}: ".format(config.ip) +
-                  "Percentage of sources protected {0} %".format(percent_p))
+                  "Cluster reduction ratio status {0}".format(ratio))
         metric = nagiosplugin.Metric(
-            "Percentage of sources protected",
-            percent_p,
-            '%',
-            min=0,
-            max=100,
-            context='protected')
+            "Reduction ratio",
+            ratio,
+            min=50,
+            context='ratio')
         return metric
 
 
@@ -90,7 +75,7 @@ def parse_args():
         '-w',
         '--warning',
         metavar='RANGE',
-        default='~:90',
+        default='@0:50',
         help='return warning if occupancy is outside RANGE')
     argp.add_argument(
         '-v',
@@ -110,8 +95,8 @@ def parse_args():
 def main():
     args = parse_args()
     check = nagiosplugin.Check(
-        CohesityObjects())
-    check.add(nagiosplugin.ScalarContext('protected', args.warning))
+        CohesityClusterReduction())
+    check.add(nagiosplugin.ScalarContext('ratio', args.warning))
     check.main(args.verbose, args.timeout)
 
 
