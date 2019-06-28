@@ -2,7 +2,8 @@
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
 # Usage :
-# python check_cohesity_objects.py
+# python check_cohesity_objects.py -i 'IP ADDRESS' -u 'USERNAME'
+# -p 'PASSWORD' -d 'DOMAIN'
 # check sources protected
 # and returns a warning the protected sources exceeds 90%
 # Requires the following non-core Python modules:

@@ -52,19 +52,19 @@ Follow steps to add python files to nagios core plugin :
 
  2.  Add the python scripts in the directory ```/usr/local/nagios/libexec/ ```
  
- 3. Make files executable 
+ 3. Make all files executable except config.py
  ```chmod +x /usr/lib/nagios/plugins/example.py```
  
  4. Add NRPE configuration 
   ```sudo vim  /usr/local/nagios/etc/nagios.cfg ```
-  change the following to the file name 
+  change the following to the file name excluding config.py
   ```
   command[example]=/usr/lib/nagios/plugins/example.sh
   ```
   
  5. Configure commands 
  ```sudo vim /usr/local/nagios/etc/objects/commands.cfg```
- change the following to the file name 
+ change the following to the file names, excluding config.py
  
  ``` 
  define command{
@@ -77,13 +77,8 @@ Follow steps to add python files to nagios core plugin :
  
  7. restart service ```service nagios restart```
 
-Note: 
-  * In terminal to run the scripts ensure to use the following commands
-  ```
-  python check_cohesity_cluster_storage.py -i 'IP ADDRESS' -u 'USERNAME' -p 'PASSWORD' -d 'DOMAIN'
-  
-  ```
-  * To run scripts on nagios UI ensure to initialize the information by editing the script (ip, user, password, domain)
+Note:
+  * To run scripts on nagios UI and terminal ensure to initialize the information by editing the config.py script (ip, user, password, domain)
   ```
         self.ip = ip
         self.user = user
