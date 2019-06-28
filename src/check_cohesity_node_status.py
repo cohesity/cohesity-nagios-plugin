@@ -31,10 +31,10 @@ class CohesityNodeStatus(nagiosplugin.Resource):
         :param password(str): password.
         :param domain(str): domain.
         """
-        self.cohesity_client = CohesityClient(cluster_vip=config.ip,
-                                              username=config.username,
-                                              password=config.password,
-                                              domain=config.domain)
+        self.ip = config.ip
+        self.user = config.username
+        self.password = config.password
+        self.domain = config.domain
 
     @property
     def name(self):
@@ -45,11 +45,11 @@ class CohesityNodeStatus(nagiosplugin.Resource):
         Method to get the cohesity node status
         :return: node_list(lst): number of total and active nodes
         """
-        APIROOT = 'https://' + str(self.ip) + '/irisservices/api/v1'
+        APIROOT = 'https://' + self.ip + '/irisservices/api/v1'
         creds = json.dumps({
-            "domain": str(self.domain),
-            "password": str(self.password),
-            "username": str(self.user)
+            "domain": self.domain,
+            "password": self.password,
+            "username": self.user
         })
         HEADER = {
             'accept': 'application/json',

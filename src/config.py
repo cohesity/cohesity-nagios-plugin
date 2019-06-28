@@ -3,7 +3,7 @@
 # Usage :
 # write credentials as a string
 
-ip = 'IP'
-username = 'USER'
-password = 'PASS'
-domain = 'DOMAIN'
+ip = '10.2.148.30'
+username = 'admin'
+password = 'admin'
+domain = 'LOCAL'
