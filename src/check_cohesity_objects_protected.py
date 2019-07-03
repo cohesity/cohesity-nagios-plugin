@@ -50,7 +50,7 @@ class CohesityObjects(nagiosplugin.Resource):
                 list_protection_sources_registration_info(
                     include_entity_permission_info=True)
         except APIException as e:
-            _log.debug("APIException raised: " + e)
+            _log.debug("get protection sources APIException raised: " + e)
         protected = 0
         unprotected = 0
         stats = object_list.stats_by_env
