@@ -49,7 +49,7 @@ class CohesityClusterReduction(nagiosplugin.Resource):
                 get_cluster(fetch_stats=True)
             reduction = cluster_stats.stats.data_reduction_ratio
         except APIException as e:
-            _log.debug("APIException raised: " + e)
+            _log.debug("get cluster APIException raised: " + e)
 
         return reduction
 
