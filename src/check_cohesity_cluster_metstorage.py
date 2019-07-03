@@ -49,7 +49,7 @@ class CohesityClusterStorage(nagiosplugin.Resource):
             alerts_list = self.cohesity_client.cluster.get_cluster()
             used = alerts_list.used_metadata_space_pct
         except APIException as e:
-            _log.debug("APIException raised: " + e)
+            _log.debug("get cluster APIException raised: " + e)
 
         return used
 

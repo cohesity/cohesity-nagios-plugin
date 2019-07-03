@@ -61,7 +61,7 @@ class CohesityAlerts(nagiosplugin.Resource):
                 start_date_usecs=start_date, end_date_usecs=end_date,
                 max_alerts=1000, alert_state_list=AlertStateListEnum.KOPEN)
         except APIException as e:
-            _log.debug("APIException raised: " + e)
+            _log.debug("get alerts APIException raised: " + e)
 
         alerts_list1 = []
         alerts_list2 = []

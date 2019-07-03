@@ -2,10 +2,10 @@
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
 # Usage :
-# python check_cohesity_cluster_storage.py -i
-# check used storage of cohesity cluster
-# and returns a warning if the usage is over 60%, and a critical
-# alert if the usage is above 80%.
+# python check_cohesity_objects.py -i 'IP ADDRESS' -u 'USERNAME'
+# -p 'PASSWORD' -d 'DOMAIN'
+# check sources protected
+# and returns a warning the protected sources exceeds 90%
 # Requires the following non-core Python modules:
 # - nagiosplugin
 # - cohesity_management_sdk
@@ -22,7 +22,7 @@ from cohesity_management_sdk.exceptions.api_exception import APIException
 _log = logging.getLogger('nagiosplugin')
 
 
-class CohesityClusterStorage(nagiosplugin.Resource):
+class CohesityObjects(nagiosplugin.Resource):
     def __init__(self):
         """
         Method to initialize
@@ -38,41 +38,49 @@ class CohesityClusterStorage(nagiosplugin.Resource):
 
     @property
     def name(self):
-        return 'COHESITY_CLUSTER_STORAGE'
+        return 'COHESITY_CLUSTER_OBJECTS_PROTECTED'
 
-    def get_cluster_storage(self):
+    def get_object(self):
         """
-        Method to get the cohesity storage used and available
-        :return: list(lst): of available and used
+        Method to get the cohesity objects protected and not protected
+        :return: list(lst): of protected and not protected
         """
         try:
-            alerts_list = self.cohesity_client.cluster.get_cluster(
-                fetch_stats=True)
+            object_list = self.cohesity_client.protection_sources.\
+                list_protection_sources_registration_info(
+                    include_entity_permission_info=True)
         except APIException as e:
-            _log.debug("get cluster APIException raised: " + e)
-        used = alerts_list.stats.usage_perf_stats.\
-            total_physical_usage_bytes
-        total = alerts_list.stats.usage_perf_stats.physical_capacity_bytes
+            _log.debug("get protection sources APIException raised: " + e)
+        protected = 0
+        unprotected = 0
+        stats = object_list.stats_by_env
+        for r in stats:
+            protected = r.protected_count + protected
+            unprotected = r.unprotected_count + unprotected
 
-        return [used, total]
+        return [protected, unprotected]
 
     def probe(self):
         """
         Method to get the status
         :return: metric(str): nagios status.
         """
-        storage = self.get_cluster_storage()
-        percent_used = int((float(storage[0]) / float(storage[1])) * 100)
-
+        objects = self.get_object()
+        total_protected = float(objects[0]) + float(objects[1])
+        protected_objects = objects[0]
+        percent_p = int(
+            float(protected_objects) /
+            float(total_protected) *
+            100)
         _log.info("Cluster ip = {}: ".format(config.ip) +
-                  "Cluster storage is {0} % used".format(percent_used))
+                  "Percentage of sources protected {0} %".format(percent_p))
         metric = nagiosplugin.Metric(
-            "Cluster used  storage",
-            percent_used,
+            "Percentage of sources protected",
+            percent_p,
             '%',
             min=0,
             max=100,
-            context='cluster_used')
+            context='protected')
         return metric
 
 
@@ -82,14 +90,8 @@ def parse_args():
         '-w',
         '--warning',
         metavar='RANGE',
-        default='~:60',
+        default='~:90',
         help='return warning if occupancy is outside RANGE')
-    argp.add_argument(
-        '-c',
-        '--critical',
-        metavar='RANGE',
-        default='~:80',
-        help='return critical if occupancy is outside RANGE')
     argp.add_argument(
         '-v',
         '--verbose',
@@ -108,12 +110,8 @@ def parse_args():
 def main():
     args = parse_args()
     check = nagiosplugin.Check(
-        CohesityClusterStorage())
-    check.add(
-        nagiosplugin.ScalarContext(
-            'cluster_used',
-            args.warning,
-            args.critical))
+        CohesityObjects())
+    check.add(nagiosplugin.ScalarContext('protected', args.warning))
     check.main(args.verbose, args.timeout)
 
 

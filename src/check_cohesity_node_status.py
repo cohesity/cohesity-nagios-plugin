@@ -59,7 +59,7 @@ class CohesityNodeStatus(nagiosplugin.Resource):
             response = requests.post(
                 url, data=creds, headers=HEADER, verify=False)
         except APIException as e:
-            _log.debug("APIException raised: " + e)
+            _log.debug("post request APIException raised: " + e)
         if response != '':
             if response.status_code == 201:
                 accessToken = response.json()['accessToken']
@@ -74,7 +74,7 @@ class CohesityNodeStatus(nagiosplugin.Resource):
                 headers=HEADER,
                 verify=False)
         except APIException as e:
-            _log.debug("APIException raised: " + e)
+            _log.debug("get cluster status APIException raised: " + e)
         response = response.json()
         node_stats = response["nodeStatus"]
         num_nodes = 0

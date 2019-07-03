@@ -58,7 +58,7 @@ class CohesityClusterHealth(nagiosplugin.Resource):
                 max_alerts=100,
                 alert_state_list=AlertStateListEnum.KOPEN)
         except APIException as e:
-            _log.debug("APIException raised: " + e)
+            _log.debug("get alerts APIException raised: " + e)
         alerts_list1 = []
         for r in alerts_list:
             if r.alert_severity == (

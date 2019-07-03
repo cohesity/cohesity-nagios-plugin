@@ -53,7 +53,7 @@ class CohesityProtectionStatus(nagiosplugin.Resource):
             protection_runs_list = self.cohesity_client.\
                 protection_runs.get_protection_runs()
         except APIException as e:
-            _log.debug("APIException raised: " + e)
+            _log.debug("get protection runs APIException raised: " + e)
 
         today = datetime.datetime.now()
         margin = datetime.timedelta(days=1)
