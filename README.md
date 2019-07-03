@@ -56,15 +56,21 @@ Follow steps to add python files to nagios core plugin :
  ```chmod +x /usr/lib/nagios/plugins/example.py```
  
  4. Add NRPE configuration 
-  ```sudo vim  /usr/local/nagios/etc/nagios.cfg ```
-  change the following to the file name excluding config.py
+  ```sudo vim  /usr/local/nagios/etc/objects/localhost.cfg ```
+  change the following to the file command name you desire (excluding config.py)
   ```
-  command[example]=/usr/lib/nagios/plugins/example.sh
+  define service{
+        use                             local-service       
+        host_name                       localhost
+        service_description             Check example
+        check_command                   check_example
+        notifications_enabled           1
+        }
   ```
   
  5. Configure commands 
  ```sudo vim /usr/local/nagios/etc/objects/commands.cfg```
- change the following to the file names, excluding config.py
+ change the following to the file names and command names, excluding config.py
  
  ``` 
  define command{
