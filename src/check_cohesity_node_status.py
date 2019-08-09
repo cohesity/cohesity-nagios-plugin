@@ -54,7 +54,7 @@ class CohesityNodeStatus(nagiosplugin.Resource):
         HEADER = {
             'accept': 'application/json',
             'content-type': 'application/json'}
-        url = APIROOT + '/public/accessTokens'
+        url = APIROOT + '/private/accessTokens'
         try:
             response = requests.post(
                 url, data=creds, headers=HEADER, verify=False)
