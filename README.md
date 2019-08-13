@@ -26,16 +26,10 @@ https://support.nagios.com/kb/article/nagios-core-installing-nagios-core-from-so
 Install Cohesity Management SDK : 
  
 
-The generated code uses Python packages named requests, jsonpickle and dateutil.
-You can resolve these dependencies using pip ( https://pip.pypa.io/en/stable/ ).
-This SDK uses the Requests library and will work for Python ```2 >=2.7.9``` and Python ```3 >=3.4```.
-
-  1. Invoke ```git clone https://github.com/cohesity/app-sdk-python.git```
-  2. ```cd app-sdk-python```
-  2. Invoke ```pip install -r requirements.txt```
-  3. Install cohesity_management_package: ```python setup.py install```. 
-  This will install the package in PYTHONPATH.
-
+Install via pip:
+```
+pip install cohesity-management-sdk
+```
 
 Install nagios plugin library : 
 
