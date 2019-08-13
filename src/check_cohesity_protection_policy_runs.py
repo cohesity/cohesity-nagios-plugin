@@ -105,12 +105,13 @@ class CohesityProtectionStatus(nagiosplugin.Resource):
         if fail == 0:
             _log.info(
                 "Cluster ip = {}: ".format(config.ip) +
-                "All {0} protection".format(succesfully) +
+                "In past day all {0} protection".format(succesfully) +
                 " runs (backup + copy run) are not in failure status")
         else:
             _log.debug(
                 "Cluster ip = {}: ".format(config.ip) +
-                "{} protection runs have failed".format(fail) +
+                "In past day {} protection runs".format(fail) +
+                " have failed (backup + copy runs)" +
                 " and {} have passed".format(succesfully))
 
         metric = nagiosplugin.Metric(
