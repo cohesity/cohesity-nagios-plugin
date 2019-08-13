@@ -23,7 +23,7 @@ On a Linux server follow these steps to download nagios core:
 https://support.nagios.com/kb/article/nagios-core-installing-nagios-core-from-source-96.html
 
 ## Step 2 
-Install Cohesity SDK : 
+Install Cohesity Management SDK : 
  
 
 The generated code uses Python packages named requests, jsonpickle and dateutil.
