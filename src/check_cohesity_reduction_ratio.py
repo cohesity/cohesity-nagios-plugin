@@ -64,6 +64,7 @@ class CohesityClusterReduction(nagiosplugin.Resource):
         metric = nagiosplugin.Metric(
             "Reduction ratio",
             ratio,
+            " x",
             min=50,
             context='ratio')
         return metric
