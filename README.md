@@ -1,6 +1,6 @@
 
 
-Beta Cohesity Nagios Plugin 
+Cohesity Nagios Plugin - Beta
 =================
 
 # Overview
