@@ -1,46 +1,89 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
-# Author : Christina Mudarth <christina.mudarth@cohesity.com>
+# Authors : Christina Mudarth <christina.mudarth@cohesity.com>
+# This script gets the alerts on Cohesity cluster and nagios status
+# is decided based on the number of critical/warning alerts. Alerts related to specific category can be monitored by
+# passing the in the alert category in the commandline arguments
+# The status is
+#     - OK when there are zero critical and zero warning alerts
+#     - CRITICAL when number of critical alerts is non zero
+#     - WARNING when number of critical alerts is zero and warning alerts is non zero
 # Usage :
-# python check_cohesity_alerts.py
-# This script looks at alerts and raises an alert for
-# Alert status of type: warnings or severe status'
-# else if just info everything is OK for the last day, max 1000 alerts
-# Requires the following non-core Python modules:
-# - nagiosplugin
-# - cohesity_management_sdk
-# Change the execution rights of the program to allow
-# the execution to 'all' (usually chmod 0755).
+# python check_cohesity_alerts.py --cluster_vip 10.10.99.100 --host_name PaulCluster --auth_file /abc/def/config.ini
+#                                 --alert Disk -vv
+#
+# If you want alerts of specific category, pass one of the categories listed below in the command line arguments.
+# If alert category is not passed, all category alerts are used to get the nagios status
+#
+# Here are the different types of categories
+# Disk - Alerts that are related to Disk.
+# Node - Alerts that are related to Node.
+# Cluster - Alerts that are related to Cluster.
+# NodeHealth - Alerts that are related to Node Health.
+# ClusterHealth - Alerts that are related to Cluster Health.
+# BackupRestore - Alerts that are related to Backup/Restore.
+# Encryption - Alerts that are related to Encryption.
+# ArchivalRestore - Alerts that are related to Archival/Restore.
+# RemoteReplication - Alerts that are related to Remote Replication.
+# Quota - Alerts that are related to Quota.
+# License - Alerts that are related to License.
+# HeliosProActiveWellness - Alerts that are related to Helios ProActive Wellness.
+# HeliosAnalyticsJobs - Alerts that are related to Helios Analytics Jobs.
+# HeliosSignatureJobs - Alerts that are related to Helios Signature Jobs.
+# Security - Alerts that are related to Security.
+#
+
+
 import argparse
-import config
 import datetime
 import logging
 import nagiosplugin
-
+import configparser
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.exceptions.api_exception import APIException
 from cohesity_management_sdk.models.alert_state_list_enum import (
-                                                AlertStateListEnum)
+    AlertStateListEnum)
 from cohesity_management_sdk.models.alert_severity_list_enum import (
-                                                AlertSeverityListEnum)
+    AlertSeverityListEnum)
+from cohesity_management_sdk.models.alert_category_list_enum import (
+    AlertCategoryListEnum)
 
 
 _log = logging.getLogger('nagiosplugin')
 
 
 class CohesityAlerts(nagiosplugin.Resource):
-    def __init__(self):
+    def __init__(self, args):
         """
         Method to initialize
-        :param ip(str): ip address.
-        :param user(str): username.
-        :param password(str): password.
-        :param domain(str): domain.
+        :param args: commandline arguments
         """
-        self.cohesity_client = CohesityClient(cluster_vip=config.ip,
-                                              username=config.username,
-                                              password=config.password,
-                                              domain=config.domain)
+        parser = configparser.ConfigParser()
+        parser.read(args.auth_file)
+        self.cohesity_client = CohesityClient(cluster_vip=args.cluster_vip,
+                                              username=parser.get(
+                                                  args.host_name, 'username'),
+                                              password=parser.get(
+                                                  args.host_name, 'password'),
+                                              domain=parser.get(args.host_name, 'domain'))
+        self.args = args
+        self.alert_category = {
+            'Disk': AlertCategoryListEnum.KDISK,
+            'Node': AlertCategoryListEnum.KNODE,
+            'Cluster': AlertCategoryListEnum.KCLUSTER,
+            'NodeHealth': AlertCategoryListEnum.KNODEHEALTH,
+            'ClusterHealth': AlertCategoryListEnum.KCLUSTERHEALTH,
+            'BackupRestore': AlertCategoryListEnum.KBACKUPRESTORE,
+            'Encryption': AlertCategoryListEnum.KENCRYPTION,
+            'ArchivalRestore': AlertCategoryListEnum.KARCHIVALRESTORE,
+            'RemoteReplication': AlertCategoryListEnum.KREMOTEREPLICATION,
+            'Quota': AlertCategoryListEnum.KQUOTA,
+            'License': AlertCategoryListEnum.KLICENSE,
+            'HeliosProActiveWellness': AlertCategoryListEnum.KHELIOSPROACTIVEWELLNESS,
+            'HeliosAnalyticsJobs': AlertCategoryListEnum.KHELIOSANALYTICSJOBS,
+            'HeliosSignatureJobs': AlertCategoryListEnum.KHELIOSSIGNATUREJOBS,
+            'Security': AlertCategoryListEnum.KSECURITY
+        }
 
     @property
     def name(self):
@@ -48,87 +91,106 @@ class CohesityAlerts(nagiosplugin.Resource):
 
     def get_alerts(self):
         """
-        Method to get the cohesity status if critical
-        :return: alert_list(lst): all the alerts that are critical or warnings
+        Method to get  critical and warning alerts
+        :return: list of critical and warning alerts
         """
-        epoch = datetime.datetime.utcfromtimestamp(0)
-        end = datetime.datetime.utcnow()
-        end_date = int((end - epoch).total_seconds()) * 1000000
-        start = datetime.datetime.utcnow() - datetime.timedelta(days=1)
-        start_date = int((start - epoch).total_seconds()) * 1000000
         try:
-            alerts_list = self.cohesity_client.alerts.get_alerts(
-                start_date_usecs=start_date, end_date_usecs=end_date,
-                max_alerts=1000, alert_state_list=AlertStateListEnum.KOPEN)
+            if self.args.alert == '':
+                alerts_list = self.cohesity_client.alerts.get_alerts(
+                    max_alerts=1000, alert_state_list=AlertStateListEnum.KOPEN)
+            else:
+                alerts_list = self.cohesity_client.\
+                    alerts.get_alerts(alert_category_list=self.alert_category[self.args.alert],
+                                      max_alerts=1000, alert_state_list=AlertStateListEnum.KOPEN)
         except APIException as e:
             _log.debug("get alerts APIException raised: " + e)
 
-        alerts_list1 = []
-        alerts_list2 = []
+        alerts_critical = []
+        alerts_warnings = []
         for r in alerts_list:
+            alert_detail = "AlertCategory:" + str(r.alert_category[1:]) + \
+                           ", AlertState:" + str(r.alert_state[1:]) + \
+                ", Severity:" + str(r.severity[1:]) + \
+                           ", OccurrenceTime: " + \
+                str(self.epoch_to_date(r.latest_timestamp_usecs))
             if r.severity == AlertSeverityListEnum.KCRITICAL:
-                alerts_list1.append('critical')
+                alerts_critical.append(alert_detail)
             if r.severity == AlertSeverityListEnum.KWARNING:
-                alerts_list2.append('warning')
-        critical = len(alerts_list1)
-        warning = len(alerts_list2)
-        return [critical, warning]
+                alerts_warnings.append(alert_detail)
+        return [alerts_critical, alerts_warnings]
 
     def probe(self):
         """
         Method to get the status
         :return: metric(str): nagios status.
         """
-        size = self.get_alerts()
-        critical = size[0]
-        warning = size[1]
-        combined = critical + warning
-
-        if critical > 0 or warning > 0:
-            _log.debug(
-                "Cluster ip = {}: ".format(config.ip) +
-                "There are {} alerts in critical".format(critical) +
-                " status and {} ".format(warning) + "alerts in warning" +
-                " status in the past day")
+        alerts = self.get_alerts()
+        critical = alerts[0]
+        warning = alerts[1]
+        if len(critical) > 0 or len(warning) > 0:
+            _log.info(
+                "Cluster ip = {}: ".format(self.args.cluster_vip) +
+                "There are {} alerts in critical".format(len(critical)) +
+                " status and {} ".format(len(warning)) + "alerts in warning" +
+                " status")
+            for alert in critical[0:5]:
+                _log.info(alert)
+            for alert in warning[0:5]:
+                _log.info(alert)
         else:
             _log.info(
-                "Cluster ip = {}: ".format(config.ip) +
-                "All alerts are in info status or no alerts" +
-                " exist in the past day")
+                "Cluster ip = {}: ".format(self.args.cluster_vip) +
+                "All alerts are in info status or no alerts")
 
-        metric = nagiosplugin.Metric(
-            "Alerts with issues",
-            combined,
+        if self.args.alert == '':
+            critical_metric = 'Critical Alerts'
+            warning_metric = 'Warning Alerts'
+        else:
+            critical_metric = 'Critical ' + self.args.alert + ' Alerts'
+            warning_metric = 'Warning ' + self.args.alert + ' Alerts'
+
+        metric_critical = nagiosplugin.Metric(
+            critical_metric,
+            len(critical),
             min=0,
-            context='warning/critical')
-        return metric
+            context='critical')
+
+        metric_warning = nagiosplugin.Metric(
+            warning_metric,
+            len(warning),
+            min=0,
+            context='warning')
+        return [metric_critical, metric_warning]
+
+    def epoch_to_date(self, epoch):
+        """
+        Method to convert epoch time in usec to date format
+        :param epoch(int): Epoch time
+        :return: date(str): Date format
+        """
+        date = datetime.datetime.fromtimestamp(epoch / 10 ** 6)
+        return date
 
 
 def parse_args():
     argp = argparse.ArgumentParser()
-    argp.add_argument(
-        '-w',
-        '--warning',
-        metavar='RANGE',
-        default='~:0',
-        help='return warning if occupancy is outside RANGE')
-    argp.add_argument(
-        '-c',
-        '--critical',
-        metavar='RANGE',
-        default='~:0',
-        help='return critical if occupancy is outside RANGE')
-    argp.add_argument(
-        '-v',
-        '--verbose',
-        action='count',
-        default=0,
-        help='increase output verbosity (use up to 3 times)')
-    argp.add_argument(
-        '-t',
-        '--timeout',
-        default=30,
-        help='abort execution after TIMEOUT seconds')
+    argp.add_argument('-ip', '--cluster_vip', required=True,
+                      help='Cohesity cluster ip or FQDN')
+    argp.add_argument('-n', '--host_name', required=True,
+                      help='Host name configured in Nagios')
+    argp.add_argument('-a', '--alert',
+                      default='', choices=['Disk', 'Node', 'Cluster', 'NodeHealth',
+                                           'ClusterHealth', 'BackupRestore', 'Encryption',
+                                           'ArchivalRestore', 'RemoteReplication',
+                                           'Quota', 'License', 'HeliosProActiveWellness',
+                                           'HeliosAnalyticsJobs', 'HeliosSignatureJobs', 'Security'],
+                      help='Alert category to be monitored on Cohesity cluster')
+    argp.add_argument('-f', '--auth_file', required=True,
+                      help='.ini file path with Cohesity cluster credentials')
+    argp.add_argument('-v', '--verbose', action='count', default=0, help='increase output'
+                                                                         ' verbosity (use up to 3 times)')
+    argp.add_argument('-t', '--timeout', default=30,
+                      help='abort execution after TIMEOUT seconds')
     return argp.parse_args()
 
 
@@ -137,12 +199,17 @@ def main():
 
     args = parse_args()
     check = nagiosplugin.Check(
-        CohesityAlerts())
+        CohesityAlerts(args))
     check.add(
         nagiosplugin.ScalarContext(
-            'warning/critical',
-            args.warning,
-            args.critical))
+            'critical',
+            critical='~:0'
+        ))
+    check.add(
+        nagiosplugin.ScalarContext(
+            'warning',
+            warning='~:0'
+        ))
     check.main(args.verbose, args.timeout)
 
 

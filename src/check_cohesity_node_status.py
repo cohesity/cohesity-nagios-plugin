@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
 # Author : Christina Mudarth <christina.mudarth@cohesity.com>
+# This script is used to find number of active nodes on a Cohesity cluster and status is
+#  OK - if number of inactive nodes is zero
+#  CRITICAL - if the number if inactive nodes is non zero
+#
 # Usage :
-# python check_cohesity_node_status.py
-# This script lets the user know if any nodes are not active on cluster
-# Requires the following non-core Python modules:
-# - nagiosplugin
-# - cohesity_management_sdk
-# Change the execution rights of the program to allow
-# the execution to 'all' (usually chmod 0755).
+# python check_cohesity_node_status.py --cluster_vip 10.10.99.100 --host_name PaulCluster
+#                                      --auth_file /abc/def/config.ini
+#
+
 import argparse
-import config
 import json
 import logging
 import nagiosplugin
 import requests
-
+import configparser
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.exceptions.api_exception import APIException
 
@@ -23,18 +23,17 @@ _log = logging.getLogger('nagiosplugin')
 
 
 class CohesityNodeStatus(nagiosplugin.Resource):
-    def __init__(self):
+    def __init__(self, args):
         """
         Method to initialize
-        :param ip(str): ip address.
-        :param user(str): username.
-        :param password(str): password.
-        :param domain(str): domain.
+        :param args: commandline arguments
         """
-        self.ip = config.ip
-        self.user = config.username
-        self.password = config.password
-        self.domain = config.domain
+        parser = configparser.ConfigParser()
+        parser.read(args.auth_file)
+        self.args = args
+        self.username = parser.get(args.host_name, 'username')
+        self.password = parser.get(args.host_name, 'password')
+        self.domain = parser.get(args.host_name, 'domain')
 
     @property
     def name(self):
@@ -45,11 +44,11 @@ class CohesityNodeStatus(nagiosplugin.Resource):
         Method to get the cohesity node status
         :return: node_list(lst): number of total and active nodes
         """
-        APIROOT = 'https://' + self.ip + '/irisservices/api/v1'
+        APIROOT = 'https://' + self.args.cluster_vip + '/irisservices/api/v1'
         creds = json.dumps({
             "domain": self.domain,
             "password": self.password,
-            "username": self.user
+            "username": self.username
         })
         HEADER = {
             'accept': 'application/json',
@@ -78,36 +77,37 @@ class CohesityNodeStatus(nagiosplugin.Resource):
         response = response.json()
         node_stats = response["nodeStatus"]
         num_nodes = 0
-        activity = []
+        active_nodes = []
         for nodes in node_stats:
             num_nodes = num_nodes + 1
-            activity.append(0)
-            for service in nodes['serviceStatus']:
-                if len(service['processIds']) > 1:
-                    activity[num_nodes - 1] = 1
-                    break
-        return activity
+            active_nodes.append(0)
+            if nodes['serviceStatus']:
+                for service in nodes['serviceStatus']:
+                    if len(service['processIds']) > 1:
+                        active_nodes[num_nodes - 1] = 1
+                        break
+        return active_nodes
 
     def probe(self):
         """
         Method to get the status
         :return: metric(str): nagios status.
         """
-        activity = self.get_node_status()
-        num_nodes = len(activity)
-        active = activity.count(1)
-        bad_nodes = num_nodes - active
+        active_nodes = self.get_node_status()
+        num_nodes = len(active_nodes)
+        active_nodes = active_nodes.count(1)
+        bad_nodes = num_nodes - active_nodes
 
-        if num_nodes == active:
-            _log.info("Cluster ip = {}: ".format(config.ip) +
-                      "All {0} nodes active".format(num_nodes))
+        if num_nodes == active_nodes:
+            _log.info("Cluster ip = {}: ".format(self.args.cluster_vip) +
+                      "All {0} nodes are active".format(num_nodes))
         else:
-            _log.debug(
-                "Cluster ip = {}: ".format(config.ip) +
-                "{0} of {1} active on cluster".format(active, num_nodes))
+            _log.info(
+                "Cluster ip = {}: ".format(self.args.cluster_vip) +
+                "{0} of {1} nodes active on cluster".format(active_nodes, num_nodes))
 
         metric = nagiosplugin.Metric(
-            "Unactive nodes are/",
+            "Inactive nodes",
             bad_nodes,
             min=0,
             context='bad_nodes')
@@ -116,29 +116,16 @@ class CohesityNodeStatus(nagiosplugin.Resource):
 
 def parse_args():
     argp = argparse.ArgumentParser()
-    argp.add_argument(
-        '-w',
-        '--warning',
-        metavar='RANGE',
-        default='~:0',
-        help='return warning if occupancy is outside RANGE')
-    argp.add_argument(
-        '-c',
-        '--critical',
-        metavar='RANGE',
-        default='~:0',
-        help='return critical if occupancy is outside RANGE')
-    argp.add_argument(
-        '-v',
-        '--verbose',
-        action='count',
-        default=0,
-        help='increase output verbosity (use up to 3 times)')
-    argp.add_argument(
-        '-t',
-        '--timeout',
-        default=30,
-        help='abort execution after TIMEOUT seconds')
+    argp.add_argument('-ip', '--cluster_vip', required=True,
+                      help='Cohesity cluster ip or FQDN')
+    argp.add_argument('-n', '--host_name', required=True,
+                      help='Host name configured in Nagios')
+    argp.add_argument('-f', '--auth_file', required=True,
+                      help='.ini file path with Cohesity cluster credentials')
+    argp.add_argument('-v', '--verbose', action='count', default=0, help='increase output verbosity'
+                                                                         ' (use up to 3 times)')
+    argp.add_argument('-t', '--timeout', default=30,
+                      help='abort execution after TIMEOUT seconds')
     return argp.parse_args()
 
 
@@ -147,9 +134,9 @@ def main():
 
     args = parse_args()
     check = nagiosplugin.Check(
-        CohesityNodeStatus())
+        CohesityNodeStatus(args))
     check.add(nagiosplugin.ScalarContext('bad_nodes',
-                                         args.warning, args.critical))
+                                         critical='~:0'))
     check.main(args.verbose, args.timeout)
 
 

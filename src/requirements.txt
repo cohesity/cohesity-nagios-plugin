@@ -1,0 +1,5 @@
+argparse
+logging
+nagiosplugin
+configparser
+cohesity_management_sdk
