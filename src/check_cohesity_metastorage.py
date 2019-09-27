@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
-# Author : Christina Mudarth <christina.mudarth@cohesity.com>
+# Author : Cohesity Developer <cohesity-api-sdks@cohesity.com>
 # This script is used to monitor the percentage of storage used for metadata
 # over the total storage available for metadata on Cohesity cluster
 # Usage :
@@ -9,9 +9,10 @@
 
 
 import argparse
+import configparser
 import logging
 import nagiosplugin
-import configparser
+
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.exceptions.api_exception import APIException
 

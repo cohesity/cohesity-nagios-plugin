@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
-# Authors : Christina Mudarth <christina.mudarth@cohesity.com>
+# Author : Cohesity Developer <cohesity-api-sdks@cohesity.com>
 # This script gets the alerts on Cohesity cluster and nagios status
 # is decided based on the number of critical/warning alerts. Alerts related to specific category can be monitored by
 # passing the in the alert category in the commandline arguments
@@ -35,10 +35,11 @@
 
 
 import argparse
+import configparser
 import datetime
 import logging
 import nagiosplugin
-import configparser
+
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.exceptions.api_exception import APIException
 from cohesity_management_sdk.models.alert_state_list_enum import (
@@ -84,6 +85,8 @@ class CohesityAlerts(nagiosplugin.Resource):
             'HeliosSignatureJobs': AlertCategoryListEnum.KHELIOSSIGNATUREJOBS,
             'Security': AlertCategoryListEnum.KSECURITY
         }
+        self.MAX_ALERTS = 1000
+        self.MICROSECONDS = 10 ** 6
 
     @property
     def name(self):
@@ -97,11 +100,11 @@ class CohesityAlerts(nagiosplugin.Resource):
         try:
             if self.args.alert == '':
                 alerts_list = self.cohesity_client.alerts.get_alerts(
-                    max_alerts=1000, alert_state_list=AlertStateListEnum.KOPEN)
+                    max_alerts=self.MAX_ALERTS, alert_state_list=AlertStateListEnum.KOPEN)
             else:
                 alerts_list = self.cohesity_client.\
                     alerts.get_alerts(alert_category_list=self.alert_category[self.args.alert],
-                                      max_alerts=1000, alert_state_list=AlertStateListEnum.KOPEN)
+                                      max_alerts=self.MAX_ALERTS, alert_state_list=AlertStateListEnum.KOPEN)
         except APIException as e:
             _log.debug("get alerts APIException raised: " + e)
 
@@ -168,7 +171,7 @@ class CohesityAlerts(nagiosplugin.Resource):
         :param epoch(int): Epoch time
         :return: date(str): Date format
         """
-        date = datetime.datetime.fromtimestamp(epoch / 10 ** 6)
+        date = datetime.datetime.fromtimestamp(epoch / self.MICROSECONDS).strftime('%m-%d-%Y %H:%M:%S')
         return date
 
 

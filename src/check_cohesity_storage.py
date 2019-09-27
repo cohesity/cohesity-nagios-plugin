@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
-# Author : Christina Mudarth <christina.mudarth@cohesity.com>
+# Author : Cohesity Developer <cohesity-api-sdks@cohesity.com>
 # This script is used to monitor percentage of total storage used
 # used_capacity: The total capacity used, as computed by the Cohesity Cluster, after the size of the data has been
 # reduced by change-block tracking, compression and deduplication
@@ -16,9 +16,10 @@
 
 
 import argparse
+import configparser
 import logging
 import nagiosplugin
-import configparser
+
 from cohesity_management_sdk.cohesity_client import CohesityClient
 from cohesity_management_sdk.exceptions.api_exception import APIException
 

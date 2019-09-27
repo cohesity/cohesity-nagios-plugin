@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright 2019 Cohesity Inc.
-# Author : Christina Mudarth <christina.mudarth@cohesity.com>
+# Author : Cohesity Developer <cohesity-api-sdks@cohesity.com>
 # This script is used to find number of active nodes on a Cohesity cluster and status is
 #  OK - if number of inactive nodes is zero
 #  CRITICAL - if the number if inactive nodes is non zero
@@ -11,12 +11,12 @@
 #
 
 import argparse
+import configparser
 import json
 import logging
 import nagiosplugin
 import requests
-import configparser
-from cohesity_management_sdk.cohesity_client import CohesityClient
+
 from cohesity_management_sdk.exceptions.api_exception import APIException
 
 _log = logging.getLogger('nagiosplugin')
