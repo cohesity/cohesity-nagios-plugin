@@ -23,7 +23,7 @@ The *Cohesity Nagios Plugin*  provides an easy-to-use plugin to monitor Cohesity
 https://support.nagios.com/kb/article/nagios-core-installing-nagios-core-from-source-96.html
 2. Install python and pip if not already installed
 3. Download or git clone Cohesity nagios plugin scripts to any directory on your machine <br/>
-`git clone https://github.com/cohesity/cohesity-nagios-plugin.git`
+`git clone -b v1.0.0 https://github.com/cohesity/cohesity-nagios-plugin.git`
 4. Find requirements.txt in the cloned directory and install the dependecies using the command <br/>
 `pip install -r requirements.txt`
 5. Copy the python scripts in src directory to */usr/local/nagios/libexec* directory
