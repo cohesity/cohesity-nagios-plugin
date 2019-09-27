@@ -3,11 +3,11 @@
 Cohesity Nagios Plugin
 ===========================
 
-# Overview
+## Overview
 
 The *Cohesity Nagios Plugin*  provides an easy-to-use plugin to monitor Cohesity clusters. 
 
-# Requirements
+## Requirements
 - Nagios Core 4.4.3+
 - Python 2.7+ or 3.5+
 - Python dependencies
@@ -18,7 +18,7 @@ The *Cohesity Nagios Plugin*  provides an easy-to-use plugin to monitor Cohesity
     - cohesity_management_sdk
 - Cohesity 6.3.1+
 
-# Steps to setup Nagios Core and Cohesity Nagios Plugin
+## Steps to setup Nagios Core and Cohesity Nagios Plugin
 1. Install Nagios Core and its associated plugins following the steps in the link <br/>
 https://support.nagios.com/kb/article/nagios-core-installing-nagios-core-from-source-96.html
 2. Install python and pip if not already installed
@@ -48,14 +48,14 @@ Cluster1HostName and Cluster2HostName are the host names defined in the nagios h
 10. Restart nagios service
 
 
-# Scripts
+## Scripts
 
-## Common Arguments
+### Common Arguments
 1. --cluster_vip or -ip: Cohesity cluster vip or FQDN. **Required**
 2. --host_name or -n: The host name given in host definition of a cluster. **Required**
 3. --auth_file or -f: .ini file with cluster credentails. **Required**
 
-## check_cohesity_alerts.py
+### check_cohesity_alerts.py
 
 This script gets the alerts on Cohesity cluster and nagios status is decided based on the number of critical/warning alerts. Alerts related to specific category can be monitored by passing the in the alert category in the commandline arguments <br/>
 The status is <br/>
@@ -89,7 +89,7 @@ Along with common arguments, this script accepts
    - HeliosSignatureJobs - Alerts that are related to Helios Signature Jobs.
    - Security - Alerts that are related to Security.
 
-## check_cohesity_metastorage.py
+### check_cohesity_metastorage.py
 
  This script is used to monitor the percentage of storage used for metadata
  over the total storage available for metadata on Cohesity cluster <br/>
@@ -101,7 +101,7 @@ Along with common arguments, this script accepts
  ```
  python check_cohesity_metastorage.py --cluster_vip 10.10.99.100 --host_name PaulCluster --auth_file /abc/def/config.ini -w 60 -c 90
 ```
-## check_cohesity_node_status.py
+### check_cohesity_node_status.py
 This script is used to find number of active nodes on a Cohesity cluster and status is <br/>
   - OK - if number of inactive nodes is zero
   - CRITICAL - if the number if inactive nodes is non zero
@@ -110,7 +110,7 @@ This script is used to find number of active nodes on a Cohesity cluster and sta
  ```
  python check_cohesity_node_status.py --cluster_vip 10.10.99.100 --host_name PaulCluster --auth_file /abc/def/config.ini
 ```
-## check_cohesity_objects_unprotected.py
+### check_cohesity_objects_unprotected.py
 
 This script is used to monitor the percentage of unprotected objects on Cohesity cluster. Ths status is <br/>
   - OK - if the percentage of unprotected objects are within the warning threshold
@@ -123,7 +123,7 @@ Along with common arguments, this script accepts
  ```
  python check_cohesity_objects_unprotected.py --cluster_vip 10.10.99.100 --host_name PaulCluster --auth_file /abc/def/config.ini -w 60
 ```
-## check_cohesity_protection_runs.py
+### check_cohesity_protection_runs.py
 
  This script is used to monitor the backup and copy runs in the last n days, n passed as an argument to the script.
  The status is <br/>
@@ -140,7 +140,7 @@ Along with common arguments, this script accepts
  ```
  python check_cohesity_protection_runs.py --cluster_vip 10.10.99.100 --host_name PaulCluster --auth_file /abc/def/config.ini -w 60 -c 90
 ```
-## check_cohesity_storage.py
+### check_cohesity_storage.py
 
  This script is used to monitor percentage of total storage used <br/>
  - used_capacity: The total capacity used, as computed by the Cohesity Cluster, after the size of the data has been
@@ -160,14 +160,14 @@ Along with common arguments, this script accepts
 ```
 
 
-# Examples:
+## Examples:
 
 The macros used in the examples:
 - $HOSTADDRESS$ : Cluster vip or FQDN from hosts definition
 - $HOSTNAME$ : Host name from hosts definition
 - $USER2$ : path to .ini file with authentication details. Defined in resource.cfg
 
-## Commands:
+### Commands:
 ```
 define command{
         command_name    check_cohesity_metastorage
@@ -197,7 +197,7 @@ define command{
 
 ```
 
-## Hosts
+### Hosts
 ```
 define host {
     use                     linux-server            ; Name of host template to use
@@ -220,7 +220,7 @@ define host {
 }
 ```
 
-## Services
+### Services
 
 ```
 define service{
@@ -272,7 +272,7 @@ define service{
         }
 ```
 
-## Auth file
+### Auth file
 config.ini
 
 ```
