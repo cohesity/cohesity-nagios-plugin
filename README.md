@@ -135,6 +135,7 @@ Along with common arguments, this script accepts
  Along with common arguments, this script accepts
  - --warning or -w: Warning threshold. Defaults to '~:0'. **Optional**
  - --critical or -c: Critical theshold. Defaults to '~:0'. **Optional**
+ - --days or -d: The number of days of protection runs to moniter. Defaults to 1 day. **Optional**
 
  Usage :
  ```
@@ -166,6 +167,7 @@ The macros used in the examples:
 - $HOSTADDRESS$ : Cluster vip or FQDN from hosts definition
 - $HOSTNAME$ : Host name from hosts definition
 - $USER2$ : path to .ini file with authentication details. Defined in resource.cfg
+- $USER1$ : path to directory with cohesity nagios scripts. Defined in resource.cfg (for example */usr/local/nagios/libexec*)
 
 ### Commands:
 ```
